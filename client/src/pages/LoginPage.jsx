@@ -3,8 +3,92 @@ import { Link } from "react-router-dom";
 
 const LoginPage = () => {
   const [isLogin, setIsLogin] = useState(true);
+  const [formData, setFormData] = useState({
+    firstname: "",
+    lastname: "",
+    email: "",
+    phone: "",
+    nationality: "",
+    birthday: "",
+    password: "",
+  });
+  const [errors, setErrors] = useState({});
 
-  const toggleMode = () => setIsLogin(!isLogin);
+  const toggleMode = () => {
+    setIsLogin(!isLogin);
+    setErrors({});
+    setFormData({
+      firstname: "",
+      lastname: "",
+      email: "",
+      phone: "",
+      nationality: "",
+      birthday: "",
+      password: "",
+    });
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+    // Clear error when user types
+    if (errors[name]) {
+      setErrors({ ...errors, [name]: "" });
+    }
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const passwordRegex = /^(?=.*[a-zA-Z])(?=.*[0-9])/;
+
+    if (!formData.email) {
+      newErrors.email = "Email is required";
+    } else if (!emailRegex.test(formData.email)) {
+      newErrors.email = "Invalid email format";
+    }
+
+    if (!formData.password) {
+      newErrors.password = "Password is required";
+    } else if (!isLogin) {
+      if (formData.password.length < 8) {
+        newErrors.password = "Password must be at least 8 characters";
+      } else if (!passwordRegex.test(formData.password)) {
+        newErrors.password =
+          "Password must contain at least 1 letter and 1 number";
+      }
+    }
+
+    if (!isLogin) {
+      if (!formData.firstname) newErrors.firstname = "First name is required";
+      if (!formData.lastname) newErrors.lastname = "Last name is required";
+      if (!formData.birthday) {
+        newErrors.birthday = "Birthday is required";
+      } else {
+        const birthDate = new Date(formData.birthday);
+        const today = new Date();
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const m = today.getMonth() - birthDate.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+          age--;
+        }
+        if (age < 13) {
+          newErrors.birthday = "You must be at least 13 years old";
+        }
+      }
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (validateForm()) {
+      console.log("Form submitted:", formData);
+      // TODO: Call backend API
+    }
+  };
 
   return (
     <div className="font-display bg-background-light dark:bg-background-dark text-[#1c1c0d] dark:text-[#fcfcf8] min-h-screen flex flex-col relative overflow-hidden selection:bg-primary selection:text-black transition-colors duration-300">
@@ -43,28 +127,136 @@ const LoginPage = () => {
           </div>
 
           {/* Form */}
-          <form
-            className="flex flex-col gap-5"
-            onSubmit={(e) => e.preventDefault()}
-          >
+          <form className="flex flex-col gap-5" onSubmit={handleSubmit}>
             {!isLogin && (
-              <div className="group">
-                <label
-                  className="block text-sm font-bold text-[#1c1c0d] dark:text-white mb-2 ml-1"
-                  htmlFor="name"
-                >
-                  Full Name
-                </label>
-                <div className="relative">
-                  <input
-                    className="form-input block w-full px-4 py-3.5 rounded-full bg-white/70 dark:bg-black/20 border-0 ring-1 ring-inset ring-[#e5e5dc] dark:ring-white/20 placeholder:text-[#9e9d47] focus:ring-2 focus:ring-inset focus:ring-primary focus:bg-white dark:focus:bg-black/40 sm:text-sm sm:leading-6 text-[#1c1c0d] dark:text-white transition-all duration-200"
-                    id="name"
-                    name="name"
-                    placeholder="John Doe"
-                    type="text"
-                  />
+              <>
+                <div className="flex gap-4">
+                  <div className="group flex-1">
+                    <label
+                      className="block text-sm font-bold text-[#1c1c0d] dark:text-white mb-2 ml-1"
+                      htmlFor="firstname"
+                    >
+                      First Name <span className="text-red-500">*</span>
+                    </label>
+                    <div className="relative">
+                      <input
+                        className={`form-input block w-full px-4 py-3.5 rounded-full bg-white/70 dark:bg-black/20 border-0 ring-1 ring-inset ${
+                          errors.firstname
+                            ? "ring-red-500"
+                            : "ring-[#e5e5dc] dark:ring-white/20"
+                        } placeholder:text-[#9e9d47] focus:ring-2 focus:ring-inset focus:ring-primary focus:bg-white dark:focus:bg-black/40 sm:text-sm sm:leading-6 text-[#1c1c0d] dark:text-white transition-all duration-200`}
+                        id="firstname"
+                        name="firstname"
+                        placeholder="John"
+                        type="text"
+                        value={formData.firstname}
+                        onChange={handleChange}
+                      />
+                      {errors.firstname && (
+                        <p className="text-red-500 text-xs mt-1 ml-2">
+                          {errors.firstname}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  <div className="group flex-1">
+                    <label
+                      className="block text-sm font-bold text-[#1c1c0d] dark:text-white mb-2 ml-1"
+                      htmlFor="lastname"
+                    >
+                      Last Name <span className="text-red-500">*</span>
+                    </label>
+                    <div className="relative">
+                      <input
+                        className={`form-input block w-full px-4 py-3.5 rounded-full bg-white/70 dark:bg-black/20 border-0 ring-1 ring-inset ${
+                          errors.lastname
+                            ? "ring-red-500"
+                            : "ring-[#e5e5dc] dark:ring-white/20"
+                        } placeholder:text-[#9e9d47] focus:ring-2 focus:ring-inset focus:ring-primary focus:bg-white dark:focus:bg-black/40 sm:text-sm sm:leading-6 text-[#1c1c0d] dark:text-white transition-all duration-200`}
+                        id="lastname"
+                        name="lastname"
+                        placeholder="Doe"
+                        type="text"
+                        value={formData.lastname}
+                        onChange={handleChange}
+                      />
+                      {errors.lastname && (
+                        <p className="text-red-500 text-xs mt-1 ml-2">
+                          {errors.lastname}
+                        </p>
+                      )}
+                    </div>
+                  </div>
                 </div>
-              </div>
+
+                <div className="group">
+                  <label
+                    className="block text-sm font-bold text-[#1c1c0d] dark:text-white mb-2 ml-1"
+                    htmlFor="phone"
+                  >
+                    Phone
+                  </label>
+                  <div className="relative">
+                    <input
+                      className="form-input block w-full px-4 py-3.5 rounded-full bg-white/70 dark:bg-black/20 border-0 ring-1 ring-inset ring-[#e5e5dc] dark:ring-white/20 placeholder:text-[#9e9d47] focus:ring-2 focus:ring-inset focus:ring-primary focus:bg-white dark:focus:bg-black/40 sm:text-sm sm:leading-6 text-[#1c1c0d] dark:text-white transition-all duration-200"
+                      id="phone"
+                      name="phone"
+                      placeholder="+1 234 567 890"
+                      type="tel"
+                      value={formData.phone}
+                      onChange={handleChange}
+                    />
+                  </div>
+                </div>
+
+                <div className="group">
+                  <label
+                    className="block text-sm font-bold text-[#1c1c0d] dark:text-white mb-2 ml-1"
+                    htmlFor="nationality"
+                  >
+                    Nationality
+                  </label>
+                  <div className="relative">
+                    <input
+                      className="form-input block w-full px-4 py-3.5 rounded-full bg-white/70 dark:bg-black/20 border-0 ring-1 ring-inset ring-[#e5e5dc] dark:ring-white/20 placeholder:text-[#9e9d47] focus:ring-2 focus:ring-inset focus:ring-primary focus:bg-white dark:focus:bg-black/40 sm:text-sm sm:leading-6 text-[#1c1c0d] dark:text-white transition-all duration-200"
+                      id="nationality"
+                      name="nationality"
+                      placeholder="American"
+                      type="text"
+                      value={formData.nationality}
+                      onChange={handleChange}
+                    />
+                  </div>
+                </div>
+
+                <div className="group">
+                  <label
+                    className="block text-sm font-bold text-[#1c1c0d] dark:text-white mb-2 ml-1"
+                    htmlFor="birthday"
+                  >
+                    Birthday <span className="text-red-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <input
+                      className={`form-input block w-full px-4 py-3.5 rounded-full bg-white/70 dark:bg-black/20 border-0 ring-1 ring-inset ${
+                        errors.birthday
+                          ? "ring-red-500"
+                          : "ring-[#e5e5dc] dark:ring-white/20"
+                      } placeholder:text-[#9e9d47] focus:ring-2 focus:ring-inset focus:ring-primary focus:bg-white dark:focus:bg-black/40 sm:text-sm sm:leading-6 text-[#1c1c0d] dark:text-white transition-all duration-200`}
+                      id="birthday"
+                      name="birthday"
+                      type="date"
+                      value={formData.birthday}
+                      onChange={handleChange}
+                    />
+                    {errors.birthday && (
+                      <p className="text-red-500 text-xs mt-1 ml-2">
+                        {errors.birthday}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </>
             )}
 
             <div className="group">
@@ -72,16 +264,27 @@ const LoginPage = () => {
                 className="block text-sm font-bold text-[#1c1c0d] dark:text-white mb-2 ml-1"
                 htmlFor="email"
               >
-                Email Address
+                Email Address <span className="text-red-500">*</span>
               </label>
               <div className="relative">
                 <input
-                  className="form-input block w-full px-4 py-3.5 rounded-full bg-white/70 dark:bg-black/20 border-0 ring-1 ring-inset ring-[#e5e5dc] dark:ring-white/20 placeholder:text-[#9e9d47] focus:ring-2 focus:ring-inset focus:ring-primary focus:bg-white dark:focus:bg-black/40 sm:text-sm sm:leading-6 text-[#1c1c0d] dark:text-white transition-all duration-200"
+                  className={`form-input block w-full px-4 py-3.5 rounded-full bg-white/70 dark:bg-black/20 border-0 ring-1 ring-inset ${
+                    errors.email
+                      ? "ring-red-500"
+                      : "ring-[#e5e5dc] dark:ring-white/20"
+                  } placeholder:text-[#9e9d47] focus:ring-2 focus:ring-inset focus:ring-primary focus:bg-white dark:focus:bg-black/40 sm:text-sm sm:leading-6 text-[#1c1c0d] dark:text-white transition-all duration-200`}
                   id="email"
                   name="email"
                   placeholder="name@library.com"
                   type="email"
+                  value={formData.email}
+                  onChange={handleChange}
                 />
+                {errors.email && (
+                  <p className="text-red-500 text-xs mt-1 ml-2">
+                    {errors.email}
+                  </p>
+                )}
               </div>
             </div>
 
@@ -91,17 +294,28 @@ const LoginPage = () => {
                   className="block text-sm font-bold text-[#1c1c0d] dark:text-white"
                   htmlFor="password"
                 >
-                  Password
+                  Password <span className="text-red-500">*</span>
                 </label>
               </div>
               <div className="relative">
                 <input
-                  className="form-input block w-full px-4 py-3.5 rounded-full bg-white/70 dark:bg-black/20 border-0 ring-1 ring-inset ring-[#e5e5dc] dark:ring-white/20 placeholder:text-[#9e9d47] focus:ring-2 focus:ring-inset focus:ring-primary focus:bg-white dark:focus:bg-black/40 sm:text-sm sm:leading-6 text-[#1c1c0d] dark:text-white transition-all duration-200"
+                  className={`form-input block w-full px-4 py-3.5 rounded-full bg-white/70 dark:bg-black/20 border-0 ring-1 ring-inset ${
+                    errors.password
+                      ? "ring-red-500"
+                      : "ring-[#e5e5dc] dark:ring-white/20"
+                  } placeholder:text-[#9e9d47] focus:ring-2 focus:ring-inset focus:ring-primary focus:bg-white dark:focus:bg-black/40 sm:text-sm sm:leading-6 text-[#1c1c0d] dark:text-white transition-all duration-200`}
                   id="password"
                   name="password"
                   placeholder="••••••••"
                   type="password"
+                  value={formData.password}
+                  onChange={handleChange}
                 />
+                {errors.password && (
+                  <p className="text-red-500 text-xs mt-1 ml-2">
+                    {errors.password}
+                  </p>
+                )}
               </div>
               {isLogin && (
                 <a
