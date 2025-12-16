@@ -34,6 +34,7 @@ async function getBooks(req, res) {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const sortParam = req.query.sort || "newest";
+    const search = req.query.search || "";
     const skip = (page - 1) * limit;
 
     let sortOptions = { createdAt: -1 }; // Default sort
@@ -44,9 +45,19 @@ async function getBooks(req, res) {
       sortOptions = { publicationYear: 1 };
     }
 
+    let query = {};
+    if (search) {
+      query = {
+        $or: [
+          { title: { $regex: search, $options: "i" } },
+          { author: { $regex: search, $options: "i" } },
+        ],
+      };
+    }
+
     const [books, total] = await Promise.all([
-      Book.find().skip(skip).limit(limit).sort(sortOptions),
-      Book.countDocuments(),
+      Book.find(query).skip(skip).limit(limit).sort(sortOptions),
+      Book.countDocuments(query),
     ]);
 
     res.status(200).json({
