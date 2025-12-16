@@ -79,8 +79,15 @@ async function login(req, res) {
       { $push: { refreshTokens: refreshToken } }
     );
 
+    // Store access token in HttpOnly cookie
+    res.cookie("token", accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 15 * 60 * 1000, // 15 minutes
+    });
+
     res.status(200).json({
-      accessToken,
       refreshToken,
       user: {
         _id: user._id,
@@ -114,7 +121,15 @@ async function refresh(req, res) {
       { expiresIn: "15m" }
     );
 
-    res.status(200).json({ accessToken });
+    // Store access token in HttpOnly cookie
+    res.cookie("token", accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 15 * 60 * 1000, // 15 minutes
+    });
+
+    res.status(200).json({ message: "Token refreshed" });
   } catch (error) {
     res.status(400).json({ message: "Invalid Refresh Token" });
   }
@@ -123,18 +138,21 @@ async function refresh(req, res) {
 async function logout(req, res) {
   const { refreshToken } = req.body;
   try {
-    const verified = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
-
-    const user = await User.findById(verified._id);
-    if (user) {
-      await User.updateOne(
-        { _id: user._id },
-        { $pull: { refreshTokens: refreshToken } }
-      );
+    if (refreshToken) {
+      const verified = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+      const user = await User.findById(verified._id);
+      if (user) {
+        await User.updateOne(
+          { _id: user._id },
+          { $pull: { refreshTokens: refreshToken } }
+        );
+      }
     }
 
+    res.clearCookie("token");
     res.status(200).json({ message: "Logged out successfully" });
   } catch (error) {
+    res.clearCookie("token");
     res.status(200).json({ message: "Logged out successfully" });
   }
 }
