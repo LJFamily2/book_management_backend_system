@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useOutletContext } from "react-router-dom";
 import axios from "axios";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
-  const [user, setUser] = useState(null);
+  const { user } = useOutletContext();
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(false);
   const [totalBooks, setTotalBooks] = useState(0);
@@ -42,23 +42,6 @@ const AdminDashboard = () => {
       clearTimeout(handler);
     };
   }, [searchQuery]);
-
-  // Fetch user
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const response = await axios.get(
-          `${import.meta.env.VITE_API_URL}/api/auth/me`,
-          { withCredentials: true }
-        );
-        setUser(response.data);
-      } catch (error) {
-        console.error("Failed to fetch user", error);
-        navigate("/");
-      }
-    };
-    fetchUser();
-  }, [navigate]);
 
   const handleLogout = async () => {
     try {

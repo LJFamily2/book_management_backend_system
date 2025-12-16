@@ -1,13 +1,18 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import {
+  Link,
+  useNavigate,
+  useSearchParams,
+  useOutletContext,
+} from "react-router-dom";
 import axios from "axios";
 
 const StudentDashboard = () => {
   const navigate = useNavigate();
+  const { user } = useOutletContext();
   const [searchParams, setSearchParams] = useSearchParams();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [user, setUser] = useState(null);
 
   const page = parseInt(searchParams.get("page") || "1", 10);
   const limit = parseInt(searchParams.get("limit") || "10", 10);
@@ -18,23 +23,6 @@ const StudentDashboard = () => {
   const [loading, setLoading] = useState(false);
   const [totalPages, setTotalPages] = useState(1);
   const search = searchParams.get("search") || "";
-
-  // Fetch user
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const response = await axios.get(
-          `${import.meta.env.VITE_API_URL}/api/auth/me`,
-          { withCredentials: true }
-        );
-        setUser(response.data);
-      } catch (error) {
-        console.error("Failed to fetch user", error);
-        navigate("/");
-      }
-    };
-    fetchUser();
-  }, [navigate]);
 
   // Fetch books
   useEffect(() => {
