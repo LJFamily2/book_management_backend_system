@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 const AdminDashboard = () => {
   const [books, setBooks] = useState([
@@ -26,15 +26,151 @@ const AdminDashboard = () => {
       summary:
         "1984 is a dystopian social science fiction novel and cautionary tale by English writer George Orwell.",
     },
+    {
+      id: 4,
+      title: "Pride and Prejudice",
+      author: "Jane Austen",
+      publicationYear: 1813,
+      summary:
+        "Pride and Prejudice is an 1813 romantic novel of manners written by Jane Austen.",
+    },
+    {
+      id: 5,
+      title: "The Catcher in the Rye",
+      author: "J.D. Salinger",
+      publicationYear: 1951,
+      summary:
+        "The Catcher in the Rye is a novel by J. D. Salinger, partially published in serial form in 1945–1946 and as a novel in 1951.",
+    },
+    {
+      id: 6,
+      title: "The Hobbit",
+      author: "J.R.R. Tolkien",
+      publicationYear: 1937,
+      summary:
+        "The Hobbit, or There and Back Again is a children's fantasy novel by English author J. R. R. Tolkien.",
+    },
+    {
+      id: 7,
+      title: "Fahrenheit 451",
+      author: "Ray Bradbury",
+      publicationYear: 1953,
+      summary:
+        "Fahrenheit 451 is a 1953 dystopian novel by American writer Ray Bradbury.",
+    },
+    {
+      id: 8,
+      title: "Jane Eyre",
+      author: "Charlotte Brontë",
+      publicationYear: 1847,
+      summary:
+        "Jane Eyre is a novel by English writer Charlotte Brontë, published under the pen name Currer Bell.",
+    },
+    {
+      id: 9,
+      title: "Animal Farm",
+      author: "George Orwell",
+      publicationYear: 1945,
+      summary:
+        "Animal Farm is a beast fable, in the form of a satirical allegorical novella, by George Orwell.",
+    },
+    {
+      id: 10,
+      title: "Wuthering Heights",
+      author: "Emily Brontë",
+      publicationYear: 1847,
+      summary:
+        "Wuthering Heights is an 1847 novel by Emily Brontë, initially published under the pseudonym Ellis Bell.",
+    },
+    {
+      id: 11,
+      title: "Brave New World",
+      author: "Aldous Huxley",
+      publicationYear: 1932,
+      summary:
+        "Brave New World is a dystopian novel by English author Aldous Huxley, written in 1931 and published in 1932.",
+    },
+    {
+      id: 12,
+      title: "The Lord of the Rings",
+      author: "J.R.R. Tolkien",
+      publicationYear: 1954,
+      summary:
+        "The Lord of the Rings is an epic high-fantasy novel by English author and scholar J. R. R. Tolkien.",
+    },
+    {
+      id: 13,
+      title: "Harry Potter and the Sorcerer's Stone",
+      author: "J.K. Rowling",
+      publicationYear: 1997,
+      summary:
+        "Harry Potter and the Philosopher's Stone is a fantasy novel written by British author J. K. Rowling.",
+    },
+    {
+      id: 14,
+      title: "The Alchemist",
+      author: "Paulo Coelho",
+      publicationYear: 1988,
+      summary:
+        "The Alchemist is a novel by Brazilian author Paulo Coelho that was first published in 1988.",
+    },
+    {
+      id: 15,
+      title: "The Da Vinci Code",
+      author: "Dan Brown",
+      publicationYear: 2003,
+      summary:
+        "The Da Vinci Code is a 2003 mystery thriller novel by Dan Brown.",
+    },
   ]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentBook, setCurrentBook] = useState(null); // For edit
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [bookToDelete, setBookToDelete] = useState(null);
 
-  const handleDelete = (id) => {
-    if (window.confirm("Are you sure you want to delete this book?")) {
-      setBooks(books.filter((book) => book.id !== id));
-    }
+  // Search state
+  const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
+
+  // Debounce search query
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+      setCurrentPage(1);
+    }, 300);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [searchQuery]);
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
+
+  // Filter books based on search query
+  const filteredBooks = books.filter(
+    (book) =>
+      book.title.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
+      book.author.toLowerCase().includes(debouncedSearchQuery.toLowerCase())
+  );
+
+  // Pagination logic
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = filteredBooks.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(filteredBooks.length / itemsPerPage);
+
+  const openDeleteModal = (id) => {
+    setBookToDelete(id);
+    setIsDeleteModalOpen(true);
+  };
+
+  const confirmDelete = () => {
+    setBooks(books.filter((book) => book.id !== bookToDelete));
+    setIsDeleteModalOpen(false);
+    setBookToDelete(null);
   };
 
   const openAddModal = () => {
@@ -69,17 +205,6 @@ const AdminDashboard = () => {
         <nav className="flex-1 overflow-y-auto py-4 flex flex-col gap-2 px-3">
           <a
             href="#"
-            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition-colors group"
-          >
-            <span className="material-symbols-outlined text-slate-500 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">
-              dashboard
-            </span>
-            <span className="hidden lg:block text-sm font-medium">
-              Dashboard
-            </span>
-          </a>
-          <a
-            href="#"
             className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary/20 text-slate-900 dark:text-white transition-colors group"
           >
             <span className="material-symbols-outlined text-slate-900 dark:text-primary">
@@ -87,37 +212,14 @@ const AdminDashboard = () => {
             </span>
             <span className="hidden lg:block text-sm font-bold">Inventory</span>
           </a>
-          <a
-            href="#"
-            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition-colors group"
-          >
-            <span className="material-symbols-outlined text-slate-500 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">
-              group
-            </span>
-            <span className="hidden lg:block text-sm font-medium">Users</span>
-          </a>
-          <a
-            href="#"
-            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition-colors group"
-          >
-            <span className="material-symbols-outlined text-slate-500 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">
-              analytics
-            </span>
-            <span className="hidden lg:block text-sm font-medium">Reports</span>
-          </a>
         </nav>
         <div className="mt-auto p-4 border-t border-slate-100 dark:border-slate-800">
-          <a
-            href="#"
-            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition-colors group"
-          >
-            <span className="material-symbols-outlined text-slate-500 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">
-              settings
+          <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors group cursor-pointer">
+            <span className="material-symbols-outlined text-red-500 group-hover:text-red-700 transition-colors">
+              logout
             </span>
-            <span className="hidden lg:block text-sm font-medium">
-              Settings
-            </span>
-          </a>
+            <span className="hidden lg:block text-sm font-medium">Logout</span>
+          </button>
           <div className="mt-4 flex items-center gap-3 px-3 pt-2">
             <div
               className="size-8 rounded-full bg-cover bg-center ring-2 ring-slate-100 dark:ring-slate-700"
@@ -154,14 +256,12 @@ const AdminDashboard = () => {
               </div>
               <input
                 type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 className="block w-64 rounded-full border-0 py-2 pl-10 pr-4 text-slate-900 ring-1 ring-inset ring-slate-200 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6 bg-slate-50 dark:bg-slate-800 dark:ring-slate-700 dark:text-white shadow-sm"
                 placeholder="Search books, authors..."
               />
             </div>
-            <button className="cursor-pointer relative p-2 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors rounded-full hover:bg-slate-100 dark:hover:bg-slate-800">
-              <span className="material-symbols-outlined">notifications</span>
-              <span className="absolute top-2 right-2 size-2 bg-red-500 rounded-full ring-2 ring-white dark:ring-slate-900"></span>
-            </button>
           </div>
         </header>
 
@@ -186,52 +286,8 @@ const AdminDashboard = () => {
             </button>
           </div>
 
-          {/* Stats Row */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-100 dark:border-slate-800 shadow-sm flex flex-col gap-1">
-              <div className="flex justify-between items-center">
-                <span className="text-slate-500 dark:text-slate-400 text-sm font-medium">
-                  Total Books
-                </span>
-                <div className="size-8 rounded-full bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-400">
-                  <span className="material-symbols-outlined text-[18px]">
-                    library_books
-                  </span>
-                </div>
-              </div>
-              <div className="flex items-baseline gap-2 mt-2">
-                <span className="text-2xl font-bold text-slate-900 dark:text-white">
-                  {books.length}
-                </span>
-                <span className="text-xs font-bold text-green-600 bg-green-50 dark:bg-green-900/20 px-1.5 py-0.5 rounded">
-                  +5%
-                </span>
-              </div>
-            </div>
-            <div className="bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-100 dark:border-slate-800 shadow-sm flex flex-col gap-1">
-              <div className="flex justify-between items-center">
-                <span className="text-slate-500 dark:text-slate-400 text-sm font-medium">
-                  New This Month
-                </span>
-                <div className="size-8 rounded-full bg-primary/10 flex items-center justify-center text-yellow-600 dark:text-yellow-400">
-                  <span className="material-symbols-outlined text-[18px]">
-                    new_releases
-                  </span>
-                </div>
-              </div>
-              <div className="flex items-baseline gap-2 mt-2">
-                <span className="text-2xl font-bold text-slate-900 dark:text-white">
-                  32
-                </span>
-                <span className="text-xs font-bold text-green-600 bg-green-50 dark:bg-green-900/20 px-1.5 py-0.5 rounded">
-                  +12%
-                </span>
-              </div>
-            </div>
-          </div>
-
           {/* Book List Table */}
-          <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+          <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm text-slate-600 dark:text-slate-400">
                 <thead className="bg-slate-50 dark:bg-slate-800/50 text-xs uppercase font-bold text-slate-500 dark:text-slate-400">
@@ -244,7 +300,7 @@ const AdminDashboard = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                  {books.map((book) => (
+                  {currentItems.map((book) => (
                     <tr
                       key={book.id}
                       className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
@@ -270,7 +326,7 @@ const AdminDashboard = () => {
                             </span>
                           </button>
                           <button
-                            onClick={() => handleDelete(book.id)}
+                            onClick={() => openDeleteModal(book.id)}
                             className="cursor-pointer p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
                           >
                             <span className="material-symbols-outlined text-[20px]">
@@ -283,6 +339,42 @@ const AdminDashboard = () => {
                   ))}
                 </tbody>
               </table>
+            </div>
+          </div>
+
+          {/* Pagination Controls */}
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4 pb-8">
+            <div className="text-sm text-slate-500 dark:text-slate-400">
+              Showing{" "}
+              <span className="font-bold text-slate-900 dark:text-white">
+                {filteredBooks.length > 0 ? indexOfFirstItem + 1 : 0}-
+                {Math.min(indexOfLastItem, filteredBooks.length)}
+              </span>{" "}
+              of{" "}
+              <span className="font-bold text-slate-900 dark:text-white">
+                {filteredBooks.length}
+              </span>{" "}
+              results
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button
+                disabled={currentPage <= 1}
+                onClick={() => setCurrentPage((prev) => prev - 1)}
+                className="px-3 py-1.5 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors text-sm font-bold text-slate-700 dark:text-slate-300"
+              >
+                Previous
+              </button>
+              <span className="text-sm font-medium text-slate-600 dark:text-slate-400 px-2">
+                Page {currentPage} of {totalPages}
+              </span>
+              <button
+                disabled={currentPage >= totalPages}
+                onClick={() => setCurrentPage((prev) => prev + 1)}
+                className="px-3 py-1.5 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors text-sm font-bold text-slate-700 dark:text-slate-300"
+              >
+                Next
+              </button>
             </div>
           </div>
         </div>
@@ -359,6 +451,42 @@ const AdminDashboard = () => {
               >
                 Save Book
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {isDeleteModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all scale-100 opacity-100">
+            <div className="p-6 text-center">
+              <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 dark:bg-red-900/20 mb-4">
+                <span className="material-symbols-outlined text-red-600 dark:text-red-500 text-2xl">
+                  warning
+                </span>
+              </div>
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">
+                Delete Book
+              </h3>
+              <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">
+                Are you sure you want to delete this book? This action cannot be
+                undone.
+              </p>
+              <div className="flex justify-center gap-3">
+                <button
+                  onClick={() => setIsDeleteModalOpen(false)}
+                  className="cursor-pointer px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={confirmDelete}
+                  className="cursor-pointer px-4 py-2 text-sm font-bold text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors shadow-lg shadow-red-600/20"
+                >
+                  Delete Book
+                </button>
+              </div>
             </div>
           </div>
         </div>
