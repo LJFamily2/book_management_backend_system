@@ -17,7 +17,7 @@ const BookDetailsPage = () => {
           `${import.meta.env.VITE_API_URL}/api/books/${id}`,
           { withCredentials: true }
         );
-        setBook(response.data.data);
+        setBook(response.data);
       } catch (err) {
         console.error("Error fetching book details:", err);
         setError("Failed to load book details.");
