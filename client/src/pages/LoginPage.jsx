@@ -101,7 +101,7 @@ const LoginPage = () => {
 
           toast.success("Login successful!");
 
-          if (response.data.user.role === "admin") {
+          if (response.data.user.role === "ADMIN") {
             navigate("/admin");
           } else {
             navigate("/student");

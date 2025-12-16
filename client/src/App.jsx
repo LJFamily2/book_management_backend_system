@@ -21,13 +21,13 @@ function App() {
         <Route path="/" element={<LoginPage />} />
 
         {/* Student Routes */}
-        <Route element={<ProtectedRoute allowedRoles={["student"]} />}>
+        <Route element={<ProtectedRoute allowedRoles={["STUDENT", "ADMIN"]} />}>
           <Route path="/student" element={<StudentDashboard />} />
           <Route path="/student/book/:id" element={<BookDetailsPage />} />
         </Route>
 
         {/* Admin Routes */}
-        <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
+        <Route element={<ProtectedRoute allowedRoles={["ADMIN"]} />}>
           <Route path="/admin" element={<AdminDashboard />} />
         </Route>
 
