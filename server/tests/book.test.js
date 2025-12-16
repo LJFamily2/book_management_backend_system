@@ -1,9 +1,13 @@
 const request = require("supertest");
 const mongoose = require("mongoose");
+const bcrypt = require("bcrypt");
 const app = require("../src/server");
 const Book = require("../src/models/Book");
+const User = require("../src/models/User");
 
 describe("Book Module - Complex Scenarios", () => {
+  let token;
+
   const validBook = {
     title: "Clean Code",
     author: "Robert C. Martin",
@@ -11,9 +15,52 @@ describe("Book Module - Complex Scenarios", () => {
     publicationYear: 2008,
   };
 
+  const adminUser = {
+    firstname: "Admin",
+    lastname: "User",
+    email: "admin@test.com",
+    password: "AdminPassword123",
+    birthday: "1990-01-01",
+    role: "ADMIN",
+  };
+
+  beforeEach(async () => {
+    // Register and login as ADMIN to get token
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(adminUser.password, salt);
+
+    const user = new User({
+      ...adminUser,
+      password: hashedPassword,
+    });
+    await user.save({ w: "majority" });
+
+    // Wait for propagation
+    let found = false;
+    for (let i = 0; i < 10; i++) {
+      const u = await User.findOne({ email: adminUser.email });
+      if (u) {
+        found = true;
+        break;
+      }
+      await new Promise((resolve) => setTimeout(resolve, 500));
+    }
+
+    if (!found) console.log("User creation failed to propagate");
+
+    const res = await request(app).post("/api/auth/login").send({
+      email: adminUser.email,
+      password: adminUser.password,
+    });
+    token = res.body.accessToken;
+  });
+
   describe("POST /api/books", () => {
     it("should create a book with valid data", async () => {
-      const res = await request(app).post("/api/books").send(validBook);
+      const res = await request(app)
+        .post("/api/books")
+        .set("auth-token", token)
+        .send(validBook);
       expect(res.statusCode).toBe(201);
       expect(res.body.title).toBe(validBook.title);
       expect(res.body._id).toBeDefined();
@@ -21,7 +68,10 @@ describe("Book Module - Complex Scenarios", () => {
 
     it("should fail when required fields are missing", async () => {
       const invalidBook = { summary: "No title or author" };
-      const res = await request(app).post("/api/books").send(invalidBook);
+      const res = await request(app)
+        .post("/api/books")
+        .set("auth-token", token)
+        .send(invalidBook);
       expect(res.statusCode).toBe(400);
       expect(res.body.message).toMatch(/required/i);
     });
@@ -31,14 +81,20 @@ describe("Book Module - Complex Scenarios", () => {
         ...validBook,
         publicationYear: new Date().getFullYear() + 1,
       };
-      const res = await request(app).post("/api/books").send(futureBook);
+      const res = await request(app)
+        .post("/api/books")
+        .set("auth-token", token)
+        .send(futureBook);
       expect(res.statusCode).toBe(400);
       expect(res.body.message).toMatch(/cannot be in the future/i);
     });
 
     it("should fail when publication year is too old (< 1000)", async () => {
       const oldBook = { ...validBook, publicationYear: 999 };
-      const res = await request(app).post("/api/books").send(oldBook);
+      const res = await request(app)
+        .post("/api/books")
+        .set("auth-token", token)
+        .send(oldBook);
       expect(res.statusCode).toBe(400);
       expect(res.body.message).toMatch(/must be a 4-digit number/i); // Based on Joi min(1000)
     });
@@ -57,11 +113,14 @@ describe("Book Module - Complex Scenarios", () => {
             author: `Author ${i + 1}`,
             publicationYear: 2000 + i,
             createdAt: new Date(Date.now() + i * 1000),
+            createdBy: new mongoose.Types.ObjectId(),
           });
         }
 
-        for (const book of books) {
-          await Book.create(book);
+        try {
+          await Book.insertMany(books, { writeConcern: { w: "majority" } });
+        } catch (err) {
+          console.log("Seeding failed:", err.message);
         }
 
         const count = await Book.countDocuments();
@@ -132,6 +191,7 @@ describe("Book Module - Complex Scenarios", () => {
     it("should update book successfully", async () => {
       const res = await request(app)
         .put(`/api/books/${bookId}`)
+        .set("auth-token", token)
         .send({ title: "Updated Title" });
       expect(res.statusCode).toBe(200);
       expect(res.body.title).toBe("Updated Title");
@@ -140,6 +200,7 @@ describe("Book Module - Complex Scenarios", () => {
     it("should fail update with invalid data", async () => {
       const res = await request(app)
         .put(`/api/books/${bookId}`)
+        .set("auth-token", token)
         .send({ publicationYear: 3000 });
       expect(res.statusCode).toBe(400); // Joi validation
     });
@@ -148,6 +209,7 @@ describe("Book Module - Complex Scenarios", () => {
       const fakeId = "507f1f77bcf86cd799439011";
       const res = await request(app)
         .put(`/api/books/${fakeId}`)
+        .set("auth-token", token)
         .send({ title: "New" });
       expect(res.statusCode).toBe(404);
     });
@@ -161,7 +223,9 @@ describe("Book Module - Complex Scenarios", () => {
     });
 
     it("should delete book successfully", async () => {
-      const res = await request(app).delete(`/api/books/${bookId}`);
+      const res = await request(app)
+        .delete(`/api/books/${bookId}`)
+        .set("auth-token", token);
       expect(res.statusCode).toBe(200);
 
       const check = await Book.findById(bookId);
@@ -170,7 +234,9 @@ describe("Book Module - Complex Scenarios", () => {
 
     it("should return 404 when deleting non-existent book", async () => {
       const fakeId = "507f1f77bcf86cd799439011";
-      const res = await request(app).delete(`/api/books/${fakeId}`);
+      const res = await request(app)
+        .delete(`/api/books/${fakeId}`)
+        .set("auth-token", token);
       expect(res.statusCode).toBe(404);
     });
   });

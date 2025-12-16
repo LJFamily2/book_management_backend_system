@@ -151,4 +151,99 @@ describe("Auth Module - Complex Scenarios", () => {
       });
     });
   });
+
+  describe("POST /api/auth/login", () => {
+    beforeEach(async () => {
+      // Create a user for login tests
+      await request(app).post("/api/auth/register").send(validUser);
+    });
+
+    it("should login successfully with valid credentials", async () => {
+      const res = await request(app).post("/api/auth/login").send({
+        email: validUser.email,
+        password: validUser.password,
+      });
+
+      expect(res.statusCode).toBe(200);
+      expect(res.body.accessToken).toBeDefined();
+      expect(res.body.refreshToken).toBeDefined();
+      expect(res.body.user.email).toBe(validUser.email);
+      expect(res.body.user.password).toBeUndefined();
+    });
+
+    it("should fail with wrong password", async () => {
+      const res = await request(app).post("/api/auth/login").send({
+        email: validUser.email,
+        password: "WrongPassword123",
+      });
+
+      expect(res.statusCode).toBe(400);
+      expect(res.body.message).toMatch(/invalid email or password/i);
+    });
+
+    it("should fail with non-existent email", async () => {
+      const res = await request(app).post("/api/auth/login").send({
+        email: "nonexistent@example.com",
+        password: "SomePassword123",
+      });
+
+      expect(res.statusCode).toBe(400);
+      expect(res.body.message).toMatch(/invalid email or password/i);
+    });
+  });
+
+  describe("POST /api/auth/refresh", () => {
+    let refreshToken;
+
+    beforeEach(async () => {
+      await request(app).post("/api/auth/register").send(validUser);
+      const res = await request(app).post("/api/auth/login").send({
+        email: validUser.email,
+        password: validUser.password,
+      });
+      refreshToken = res.body.refreshToken;
+    });
+
+    it("should refresh access token with valid refresh token", async () => {
+      const res = await request(app)
+        .post("/api/auth/refresh")
+        .send({ refreshToken });
+      expect(res.statusCode).toBe(200);
+      expect(res.body.accessToken).toBeDefined();
+    });
+
+    it("should fail with invalid refresh token", async () => {
+      const res = await request(app)
+        .post("/api/auth/refresh")
+        .send({ refreshToken: "invalid_token" });
+      expect(res.statusCode).toBe(400);
+    });
+  });
+
+  describe("POST /api/auth/logout", () => {
+    let refreshToken;
+
+    beforeEach(async () => {
+      await request(app).post("/api/auth/register").send(validUser);
+      const res = await request(app).post("/api/auth/login").send({
+        email: validUser.email,
+        password: validUser.password,
+      });
+      refreshToken = res.body.refreshToken;
+    });
+
+    it("should logout successfully", async () => {
+      const res = await request(app)
+        .post("/api/auth/logout")
+        .send({ refreshToken });
+      expect(res.statusCode).toBe(200);
+      expect(res.body.message).toMatch(/logged out/i);
+
+      // Verify token is invalidated
+      const refreshRes = await request(app)
+        .post("/api/auth/refresh")
+        .send({ refreshToken });
+      expect(refreshRes.statusCode).toBe(403);
+    });
+  });
 });
