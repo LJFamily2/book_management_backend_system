@@ -128,7 +128,7 @@ const StudentDashboard = () => {
                   </div>
                   <button
                     onClick={handleLogout}
-                    className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors flex items-center gap-2"
+                    className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors flex items-center gap-2 cursor-pointer"
                   >
                     <span className="material-symbols-outlined text-[18px]">
                       logout
@@ -214,7 +214,7 @@ const StudentDashboard = () => {
                   </div>
                   <button
                     onClick={() => handleSortChange("newest")}
-                    className={`w-full text-left px-4 py-2 text-sm transition-colors ${
+                    className={`w-full cursor-pointer text-left px-4 py-2 text-sm transition-colors ${
                       sort === "newest"
                         ? "bg-primary/10 text-primary-dark font-bold"
                         : "text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5"
@@ -224,7 +224,7 @@ const StudentDashboard = () => {
                   </button>
                   <button
                     onClick={() => handleSortChange("oldest")}
-                    className={`w-full text-left px-4 py-2 text-sm transition-colors ${
+                    className={`w-full cursor-pointer text-left px-4 py-2 text-sm transition-colors ${
                       sort === "oldest"
                         ? "bg-primary/10 text-primary-dark font-bold"
                         : "text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5"
@@ -293,7 +293,7 @@ const StudentDashboard = () => {
           <button
             disabled={page <= 1}
             onClick={() => handlePageChange(page - 1)}
-            className="px-4 py-2 rounded-lg bg-white dark:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100 dark:hover:bg-white/20 transition-colors text-sm font-bold"
+            className="cursor-pointer px-4 py-2 rounded-lg bg-white dark:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100 dark:hover:bg-white/20 transition-colors text-sm font-bold"
           >
             Previous
           </button>
@@ -303,7 +303,7 @@ const StudentDashboard = () => {
           <button
             disabled={page >= totalPages}
             onClick={() => handlePageChange(page + 1)}
-            className="px-4 py-2 rounded-lg bg-white dark:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100 dark:hover:bg-white/20 transition-colors text-sm font-bold"
+            className="cursor-pointer px-4 py-2 rounded-lg bg-white dark:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100 dark:hover:bg-white/20 transition-colors text-sm font-bold"
           >
             Next
           </button>

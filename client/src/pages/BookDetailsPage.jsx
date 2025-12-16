@@ -46,7 +46,7 @@ const BookDetailsPage = () => {
         <p className="text-xl font-bold">{error || "Book not found"}</p>
         <button
           onClick={() => navigate(-1)}
-          className="px-6 py-2 bg-primary text-black font-bold rounded-lg hover:bg-[#e6e205] transition-colors"
+          className="cursor-pointer px-6 py-2 bg-primary text-black font-bold rounded-lg hover:bg-[#e6e205] transition-colors"
         >
           Go Back
         </button>
@@ -89,10 +89,10 @@ const BookDetailsPage = () => {
             </div>
 
             <div className="mt-auto flex gap-4">
-              <button className="flex-1 bg-primary hover:bg-[#e6e205] text-black font-bold py-3 px-6 rounded-xl transition-colors shadow-sm">
+              <button className="cursor-pointer flex-1 bg-primary hover:bg-[#e6e205] text-black font-bold py-3 px-6 rounded-xl transition-colors shadow-sm">
                 Borrow Book
               </button>
-              <button className="px-6 py-3 bg-gray-100 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/20 text-[#1c1c0d] dark:text-white font-bold rounded-xl transition-colors">
+              <button className="cursor-pointer px-6 py-3 bg-gray-100 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/20 text-[#1c1c0d] dark:text-white font-bold rounded-xl transition-colors">
                 Add to List
               </button>
             </div>
