@@ -1,7 +1,10 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 const AdminDashboard = () => {
+  const navigate = useNavigate();
+  const [user, setUser] = useState(null);
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(false);
   const [totalBooks, setTotalBooks] = useState(0);
@@ -39,6 +42,37 @@ const AdminDashboard = () => {
       clearTimeout(handler);
     };
   }, [searchQuery]);
+
+  // Fetch user
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const response = await axios.get(
+          `${import.meta.env.VITE_API_URL}/api/auth/me`,
+          { withCredentials: true }
+        );
+        setUser(response.data);
+      } catch (error) {
+        console.error("Failed to fetch user", error);
+        navigate("/");
+      }
+    };
+    fetchUser();
+  }, [navigate]);
+
+  const handleLogout = async () => {
+    try {
+      await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/auth/logout`,
+        {},
+        { withCredentials: true }
+      );
+      navigate("/");
+    } catch (error) {
+      console.error("Logout failed", error);
+      navigate("/");
+    }
+  };
 
   // Fetch books from API
   const fetchBooks = async () => {
@@ -176,7 +210,10 @@ const AdminDashboard = () => {
           </a>
         </nav>
         <div className="mt-auto p-4 border-t border-slate-100 dark:border-slate-800">
-          <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors group cursor-pointer">
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors group cursor-pointer"
+          >
             <span className="material-symbols-outlined text-red-500 group-hover:text-red-700 transition-colors">
               logout
             </span>
@@ -192,10 +229,10 @@ const AdminDashboard = () => {
             ></div>
             <div className="hidden lg:flex flex-col">
               <p className="text-sm font-semibold text-slate-900 dark:text-white">
-                Jane Doe
+                {user?.firstname} {user?.lastname}
               </p>
               <p className="text-xs text-slate-500 dark:text-slate-400">
-                Admin
+                {user?.role}
               </p>
             </div>
           </div>

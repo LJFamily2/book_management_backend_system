@@ -7,6 +7,7 @@ const StudentDashboard = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [user, setUser] = useState(null);
 
   const page = parseInt(searchParams.get("page") || "1", 10);
   const limit = parseInt(searchParams.get("limit") || "10", 10);
@@ -15,9 +16,25 @@ const StudentDashboard = () => {
   // Data state
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [totalBooks, setTotalBooks] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
   const search = searchParams.get("search") || "";
+
+  // Fetch user
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const response = await axios.get(
+          `${import.meta.env.VITE_API_URL}/api/auth/me`,
+          { withCredentials: true }
+        );
+        setUser(response.data);
+      } catch (error) {
+        console.error("Failed to fetch user", error);
+        navigate("/");
+      }
+    };
+    fetchUser();
+  }, [navigate]);
 
   // Fetch books
   useEffect(() => {
@@ -37,7 +54,6 @@ const StudentDashboard = () => {
           }
         );
         setBooks(response.data.data);
-        setTotalBooks(response.data.pagination.total);
         setTotalPages(response.data.pagination.pages);
       } catch (error) {
         console.error("Error fetching books:", error);
@@ -112,10 +128,10 @@ const StudentDashboard = () => {
                 <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-[#23220f] rounded-sm shadow-lg border border-gray-100 dark:border-white/10 py-1 z-50">
                   <div className="px-4 py-3 border-b border-gray-100 dark:border-white/10">
                     <p className="text-sm font-bold text-[#1c1c0d] dark:text-white">
-                      John Doe
+                      {user?.firstname} {user?.lastname}
                     </p>
                     <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                      john.doe@example.com
+                      {user?.email}
                     </p>
                   </div>
                   <button
@@ -281,7 +297,7 @@ const StudentDashboard = () => {
         )}
 
         {/* Pagination Controls */}
-        <div className="flex justify-center items-center gap-4 pb-12">
+        <div className="flex justify-end items-center gap-4 pb-12">
           <button
             disabled={page <= 1}
             onClick={() => handlePageChange(page - 1)}

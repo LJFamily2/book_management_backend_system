@@ -98,8 +98,6 @@ const LoginPage = () => {
             { withCredentials: true }
           );
 
-          localStorage.setItem("user", JSON.stringify(response.data.user));
-
           if (response.data.user.role === "admin") {
             navigate("/admin");
           } else {
