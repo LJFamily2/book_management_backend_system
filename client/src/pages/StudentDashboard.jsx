@@ -3,11 +3,13 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 
 const StudentDashboard = () => {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   const page = parseInt(searchParams.get("page") || "1", 10);
   const limit = parseInt(searchParams.get("limit") || "10", 10);
+  const sort = searchParams.get("sort") || "newest"; // 'newest' or 'oldest'
 
   const books = [
     {
@@ -132,9 +134,23 @@ const StudentDashboard = () => {
     },
   ];
 
-  const totalPages = Math.ceil(books.length / limit);
+  // Sort books based on publication year
+  const sortedBooks = [...books].sort((a, b) => {
+    if (sort === "newest") {
+      return b.publicationYear - a.publicationYear;
+    } else {
+      return a.publicationYear - b.publicationYear;
+    }
+  });
+
+  const totalPages = Math.ceil(sortedBooks.length / limit);
   const startIndex = (page - 1) * limit;
-  const displayedBooks = books.slice(startIndex, startIndex + limit);
+  const displayedBooks = sortedBooks.slice(startIndex, startIndex + limit);
+
+  const handleSortChange = (newSort) => {
+    setSearchParams({ page: 1, limit, sort: newSort });
+    setIsFilterOpen(false);
+  };
 
   return (
     <div className="bg-background-light dark:bg-background-dark text-[#1c1c0d] dark:text-gray-100 min-h-screen flex flex-col font-display transition-colors duration-200">
@@ -149,26 +165,8 @@ const StudentDashboard = () => {
               Book Management
             </h2>
           </div>
-          <nav className="hidden md:flex items-center gap-8">
-            <Link
-              to="/student"
-              className="text-[#1c1c0d] dark:text-gray-200 text-sm font-semibold hover:text-primary/80 transition-colors"
-            >
-              Dashboard
-            </Link>
-            <Link
-              to="/student?page=1&limit=10"
-              className="text-gray-500 dark:text-gray-400 text-sm font-medium hover:text-[#1c1c0d] dark:hover:text-white transition-colors"
-            >
-              List all books
-            </Link>
-          </nav>
+
           <div className="flex items-center gap-4">
-            <button className="cursor-pointer p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors">
-              <span className="material-symbols-outlined text-gray-600 dark:text-gray-300">
-                notifications
-              </span>
-            </button>
             {/* User Icon with Dropdown */}
             <div className="relative">
               <button
@@ -255,12 +253,48 @@ const StudentDashboard = () => {
             <button className="cursor-pointer px-5 py-2 rounded-full bg-primary text-black text-sm font-bold shadow-sm ring-2 ring-primary ring-offset-2 ring-offset-[#f8f8f5] dark:ring-offset-[#23220f]">
               All Books
             </button>
-            <button className="cursor-pointer ml-auto flex items-center gap-1 text-sm font-medium text-gray-500 hover:text-black dark:text-gray-400 dark:hover:text-white transition-colors">
-              <span className="material-symbols-outlined text-[18px]">
-                tune
-              </span>
-              Filters
-            </button>
+
+            <div className="ml-auto relative">
+              <button
+                onClick={() => setIsFilterOpen(!isFilterOpen)}
+                className="cursor-pointer flex items-center gap-1 text-sm font-medium text-gray-500 hover:text-black dark:text-gray-400 dark:hover:text-white transition-colors"
+              >
+                <span className="material-symbols-outlined text-[18px]">
+                  tune
+                </span>
+                Filters
+              </button>
+
+              {isFilterOpen && (
+                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-[#23220f] rounded-sm shadow-lg border border-gray-100 dark:border-white/10 py-1 z-20">
+                  <div className="px-4 py-2 border-b border-gray-100 dark:border-white/10">
+                    <p className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase">
+                      Sort By
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => handleSortChange("newest")}
+                    className={`w-full text-left px-4 py-2 text-sm transition-colors ${
+                      sort === "newest"
+                        ? "bg-primary/10 text-primary-dark font-bold"
+                        : "text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5"
+                    }`}
+                  >
+                    Newest to Oldest
+                  </button>
+                  <button
+                    onClick={() => handleSortChange("oldest")}
+                    className={`w-full text-left px-4 py-2 text-sm transition-colors ${
+                      sort === "oldest"
+                        ? "bg-primary/10 text-primary-dark font-bold"
+                        : "text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5"
+                    }`}
+                  >
+                    Oldest to Newest
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </section>
 
@@ -287,16 +321,14 @@ const StudentDashboard = () => {
                   {book.summary}
                 </p>
                 <div className="mt-auto pt-3 border-t border-gray-100 dark:border-white/10 flex gap-3">
-                  <button className="cursor-pointer flex-1 bg-primary hover:bg-[#e6e205] text-black text-sm font-bold py-2.5 rounded-lg transition-colors shadow-sm">
-                    Borrow Now
-                  </button>
                   <Link
                     to={`/student/book/${book.id}`}
-                    className="cursor-pointer px-3 py-2.5 bg-gray-100 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/20 text-[#1c1c0d] dark:text-white rounded-lg transition-colors flex items-center justify-center"
+                    className="cursor-pointer flex-1 bg-primary hover:bg-[#e6e205] text-black text-sm font-bold py-2.5 rounded-lg transition-colors shadow-sm flex items-center justify-center gap-2"
                   >
                     <span className="material-symbols-outlined text-[20px]">
                       visibility
                     </span>
+                    View Details
                   </Link>
                 </div>
               </div>

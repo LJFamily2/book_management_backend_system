@@ -19,20 +19,16 @@ const BookDetailsPage = () => {
     <div className="bg-background-light dark:bg-background-dark text-[#1c1c0d] dark:text-gray-100 min-h-screen flex flex-col font-display transition-colors duration-200 p-8">
       <button
         onClick={() => navigate(-1)}
-        className="mb-6 flex items-center gap-2 text-sm font-bold text-primary hover:underline w-fit"
+        className="cursor-pointer mb-6 flex items-center gap-2 text-sm font-bold w-fit group"
       >
-        <span className="material-symbols-outlined text-sm">arrow_back</span>
+        <span className="material-symbols-outlined text-sm inline-block transform transition-transform duration-200 group-hover:-translate-x-2">
+          arrow_back
+        </span>
         Back to Dashboard
       </button>
 
       <div className="max-w-4xl mx-auto w-full bg-white dark:bg-[#23220f] rounded-2xl shadow-sm border border-gray-100 dark:border-white/5 overflow-hidden">
         <div className="p-8 md:p-12 flex flex-col md:flex-row gap-8">
-          <div className="w-full md:w-1/3 flex justify-center bg-gray-100 dark:bg-gray-800 rounded-xl items-center aspect-[3/4]">
-            <span className="material-symbols-outlined text-9xl text-gray-300 dark:text-gray-600">
-              menu_book
-            </span>
-          </div>
-
           <div className="flex-1 flex flex-col">
             <div className="mb-2">
               <span className="inline-block px-3 py-1 bg-primary/20 text-primary-dark text-xs font-bold rounded-full mb-3">

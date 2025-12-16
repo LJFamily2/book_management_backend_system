@@ -33,10 +33,19 @@ async function getBooks(req, res) {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
+    const sortParam = req.query.sort || "newest";
     const skip = (page - 1) * limit;
 
+    let sortOptions = { createdAt: -1 }; // Default sort
+
+    if (sortParam === "newest") {
+      sortOptions = { publicationYear: -1 };
+    } else if (sortParam === "oldest") {
+      sortOptions = { publicationYear: 1 };
+    }
+
     const [books, total] = await Promise.all([
-      Book.find().skip(skip).limit(limit).sort({ createdAt: -1 }),
+      Book.find().skip(skip).limit(limit).sort(sortOptions),
       Book.countDocuments(),
     ]);
 
