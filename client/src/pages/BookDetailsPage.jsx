@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
+import toast from "react-hot-toast";
 
 const BookDetailsPage = () => {
   const { id } = useParams();
@@ -20,6 +21,7 @@ const BookDetailsPage = () => {
       } catch (err) {
         console.error("Error fetching book details:", err);
         setError("Failed to load book details.");
+        toast.error("Failed to load book details.");
       } finally {
         setLoading(false);
       }

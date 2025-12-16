@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import toast from "react-hot-toast";
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -98,6 +99,8 @@ const LoginPage = () => {
             { withCredentials: true }
           );
 
+          toast.success("Login successful!");
+
           if (response.data.user.role === "admin") {
             navigate("/admin");
           } else {
@@ -111,11 +114,11 @@ const LoginPage = () => {
             }
           );
           setIsLogin(true);
-          alert("Registration successful! Please login.");
+          toast.success("Registration successful! Please login.");
         }
       } catch (error) {
         console.error(error);
-        alert(error.response?.data?.message || "An error occurred");
+        toast.error(error.response?.data?.message || "An error occurred");
       }
     }
   };

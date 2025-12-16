@@ -6,6 +6,7 @@ import {
   useOutletContext,
 } from "react-router-dom";
 import axios from "axios";
+import toast from "react-hot-toast";
 
 const StudentDashboard = () => {
   const navigate = useNavigate();
@@ -45,6 +46,7 @@ const StudentDashboard = () => {
         setTotalPages(response.data.pagination.pages);
       } catch (error) {
         console.error("Error fetching books:", error);
+        toast.error("Failed to load books");
       } finally {
         setLoading(false);
       }
@@ -79,9 +81,11 @@ const StudentDashboard = () => {
         {},
         { withCredentials: true }
       );
+      toast.success("Logged out successfully");
       navigate("/");
     } catch (error) {
       console.error("Logout failed", error);
+      toast.error("Logout failed");
       navigate("/");
     }
   };

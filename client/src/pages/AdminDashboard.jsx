@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useOutletContext } from "react-router-dom";
 import axios from "axios";
+import toast from "react-hot-toast";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -50,9 +51,11 @@ const AdminDashboard = () => {
         {},
         { withCredentials: true }
       );
+      toast.success("Logged out successfully");
       navigate("/");
     } catch (error) {
       console.error("Logout failed", error);
+      toast.error("Logout failed");
       navigate("/");
     }
   };
@@ -99,12 +102,13 @@ const AdminDashboard = () => {
           withCredentials: true,
         }
       );
+      toast.success("Book deleted successfully");
       fetchBooks();
       setIsDeleteModalOpen(false);
       setBookToDelete(null);
     } catch (error) {
       console.error("Error deleting book:", error);
-      alert("Failed to delete book");
+      toast.error("Failed to delete book");
     }
   };
 
@@ -139,6 +143,7 @@ const AdminDashboard = () => {
           formData,
           { withCredentials: true }
         );
+        toast.success("Book updated successfully");
       } else {
         // Create
         await axios.post(
@@ -148,12 +153,13 @@ const AdminDashboard = () => {
             withCredentials: true,
           }
         );
+        toast.success("Book created successfully");
       }
       fetchBooks();
       setIsModalOpen(false);
     } catch (error) {
       console.error("Error saving book:", error);
-      alert("Failed to save book");
+      toast.error(error.response?.data?.message || "Error saving book");
     }
   };
 
