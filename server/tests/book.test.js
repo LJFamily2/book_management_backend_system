@@ -25,6 +25,7 @@ describe("Book Module - Complex Scenarios", () => {
   };
 
   beforeEach(async () => {
+    await User.deleteMany({});
     // Register and login as ADMIN to get token
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(adminUser.password, salt);
@@ -33,33 +34,21 @@ describe("Book Module - Complex Scenarios", () => {
       ...adminUser,
       password: hashedPassword,
     });
-    await user.save({ w: "majority" });
-
-    // Wait for propagation
-    let found = false;
-    for (let i = 0; i < 10; i++) {
-      const u = await User.findOne({ email: adminUser.email });
-      if (u) {
-        found = true;
-        break;
-      }
-      await new Promise((resolve) => setTimeout(resolve, 500));
-    }
-
-    if (!found) console.log("User creation failed to propagate");
+    await user.save();
 
     const res = await request(app).post("/api/auth/login").send({
       email: adminUser.email,
       password: adminUser.password,
     });
-    token = res.body.accessToken;
+    const cookies = res.headers["set-cookie"];
+    token = cookies.find((cookie) => cookie.startsWith("token="));
   });
 
   describe("POST /api/books", () => {
     it("should create a book with valid data", async () => {
       const res = await request(app)
         .post("/api/books")
-        .set("auth-token", token)
+        .set("Cookie", token)
         .send(validBook);
       expect(res.statusCode).toBe(201);
       expect(res.body.title).toBe(validBook.title);
@@ -70,7 +59,7 @@ describe("Book Module - Complex Scenarios", () => {
       const invalidBook = { summary: "No title or author" };
       const res = await request(app)
         .post("/api/books")
-        .set("auth-token", token)
+        .set("Cookie", token)
         .send(invalidBook);
       expect(res.statusCode).toBe(400);
       expect(res.body.message).toMatch(/required/i);
@@ -83,7 +72,7 @@ describe("Book Module - Complex Scenarios", () => {
       };
       const res = await request(app)
         .post("/api/books")
-        .set("auth-token", token)
+        .set("Cookie", token)
         .send(futureBook);
       expect(res.statusCode).toBe(400);
       expect(res.body.message).toMatch(/cannot be in the future/i);
@@ -93,7 +82,7 @@ describe("Book Module - Complex Scenarios", () => {
       const oldBook = { ...validBook, publicationYear: 999 };
       const res = await request(app)
         .post("/api/books")
-        .set("auth-token", token)
+        .set("Cookie", token)
         .send(oldBook);
       expect(res.statusCode).toBe(400);
       expect(res.body.message).toMatch(/must be a 4-digit number/i); // Based on Joi min(1000)
@@ -131,7 +120,7 @@ describe("Book Module - Complex Scenarios", () => {
     });
 
     it("should return first page with default limit (10)", async () => {
-      const res = await request(app).get("/api/books");
+      const res = await request(app).get("/api/books").set("Cookie", token);
       expect(res.statusCode).toBe(200);
       expect(res.body.data).toHaveLength(10);
       expect(res.body.pagination.page).toBe(1);
@@ -140,28 +129,34 @@ describe("Book Module - Complex Scenarios", () => {
     });
 
     it("should return second page with remaining items", async () => {
-      const res = await request(app).get("/api/books?page=2");
+      const res = await request(app)
+        .get("/api/books?page=2")
+        .set("Cookie", token);
       expect(res.statusCode).toBe(200);
       expect(res.body.data).toHaveLength(5);
       expect(res.body.pagination.page).toBe(2);
     });
 
     it("should respect custom limit", async () => {
-      const res = await request(app).get("/api/books?limit=5");
+      const res = await request(app)
+        .get("/api/books?limit=5")
+        .set("Cookie", token);
       expect(res.statusCode).toBe(200);
       expect(res.body.data).toHaveLength(5);
       expect(res.body.pagination.pages).toBe(3);
     });
 
     it("should return empty array for page out of range", async () => {
-      const res = await request(app).get("/api/books?page=100");
+      const res = await request(app)
+        .get("/api/books?page=100")
+        .set("Cookie", token);
       expect(res.statusCode).toBe(200);
       expect(res.body.data).toHaveLength(0);
     });
 
     it("should sort by createdAt descending (newest first)", async () => {
       // We inserted in order, so the last one inserted (Book 15) should be first
-      const res = await request(app).get("/api/books");
+      const res = await request(app).get("/api/books").set("Cookie", token);
       expect(res.body.data[0].title).toBe("Book 15");
     });
   });
@@ -169,12 +164,16 @@ describe("Book Module - Complex Scenarios", () => {
   describe("GET /api/books/:id", () => {
     it("should return 404 for non-existent ID", async () => {
       const validObjectId = "507f1f77bcf86cd799439011";
-      const res = await request(app).get(`/api/books/${validObjectId}`);
+      const res = await request(app)
+        .get(`/api/books/${validObjectId}`)
+        .set("Cookie", token);
       expect(res.statusCode).toBe(404);
     });
 
     it("should return 500 (or 400 depending on handler) for invalid ID format", async () => {
-      const res = await request(app).get("/api/books/invalid-id");
+      const res = await request(app)
+        .get("/api/books/invalid-id")
+        .set("Cookie", token);
       // Mongoose throws CastError, controller catches and returns 500 currently
       expect(res.statusCode).toBe(500);
       expect(res.body.message).toMatch(/Cast to ObjectId failed/i);
@@ -191,7 +190,7 @@ describe("Book Module - Complex Scenarios", () => {
     it("should update book successfully", async () => {
       const res = await request(app)
         .put(`/api/books/${bookId}`)
-        .set("auth-token", token)
+        .set("Cookie", token)
         .send({ title: "Updated Title" });
       expect(res.statusCode).toBe(200);
       expect(res.body.title).toBe("Updated Title");
@@ -200,7 +199,7 @@ describe("Book Module - Complex Scenarios", () => {
     it("should fail update with invalid data", async () => {
       const res = await request(app)
         .put(`/api/books/${bookId}`)
-        .set("auth-token", token)
+        .set("Cookie", token)
         .send({ publicationYear: 3000 });
       expect(res.statusCode).toBe(400); // Joi validation
     });
@@ -209,7 +208,7 @@ describe("Book Module - Complex Scenarios", () => {
       const fakeId = "507f1f77bcf86cd799439011";
       const res = await request(app)
         .put(`/api/books/${fakeId}`)
-        .set("auth-token", token)
+        .set("Cookie", token)
         .send({ title: "New" });
       expect(res.statusCode).toBe(404);
     });
@@ -225,7 +224,7 @@ describe("Book Module - Complex Scenarios", () => {
     it("should delete book successfully", async () => {
       const res = await request(app)
         .delete(`/api/books/${bookId}`)
-        .set("auth-token", token);
+        .set("Cookie", token);
       expect(res.statusCode).toBe(200);
 
       const check = await Book.findById(bookId);
@@ -236,7 +235,7 @@ describe("Book Module - Complex Scenarios", () => {
       const fakeId = "507f1f77bcf86cd799439011";
       const res = await request(app)
         .delete(`/api/books/${fakeId}`)
-        .set("auth-token", token);
+        .set("Cookie", token);
       expect(res.statusCode).toBe(404);
     });
   });

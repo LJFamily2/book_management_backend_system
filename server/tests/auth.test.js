@@ -13,6 +13,7 @@ describe("Auth Module - Complex Scenarios", () => {
   };
 
   beforeEach(async () => {
+    await User.deleteMany({});
     await User.syncIndexes();
   });
 
@@ -165,7 +166,7 @@ describe("Auth Module - Complex Scenarios", () => {
       });
 
       expect(res.statusCode).toBe(200);
-      expect(res.body.accessToken).toBeDefined();
+      expect(res.headers["set-cookie"]).toBeDefined();
       expect(res.body.refreshToken).toBeDefined();
       expect(res.body.user.email).toBe(validUser.email);
       expect(res.body.user.password).toBeUndefined();
@@ -209,7 +210,7 @@ describe("Auth Module - Complex Scenarios", () => {
         .post("/api/auth/refresh")
         .send({ refreshToken });
       expect(res.statusCode).toBe(200);
-      expect(res.body.accessToken).toBeDefined();
+      expect(res.headers["set-cookie"]).toBeDefined();
     });
 
     it("should fail with invalid refresh token", async () => {
