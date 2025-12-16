@@ -283,6 +283,7 @@ const AdminDashboard = () => {
                     <th className="px-6 py-4">Book Title</th>
                     <th className="px-6 py-4">Author</th>
                     <th className="px-6 py-4">Year</th>
+                    <th className="px-6 py-4">Created By</th>
                     <th className="px-6 py-4">Summary</th>
                     <th className="px-6 py-4 text-right">Actions</th>
                   </tr>
@@ -312,6 +313,11 @@ const AdminDashboard = () => {
                         <td className="px-6 py-4">{book.author}</td>
                         <td className="px-6 py-4 font-mono text-xs">
                           {book.publicationYear}
+                        </td>
+                        <td className="px-6 py-4 text-xs text-slate-500">
+                          {book.createdBy?.firstname
+                            ? `${book.createdBy.firstname} ${book.createdBy.lastname}`
+                            : "Unknown"}
                         </td>
                         <td className="px-6 py-4 max-w-xs truncate">
                           {book.summary}

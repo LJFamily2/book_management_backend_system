@@ -1,4 +1,5 @@
 const Book = require("../models/Book");
+const User = require("../models/User");
 const {
   createBookSchema,
   updateBookSchema,
@@ -56,7 +57,14 @@ async function getBooks(req, res) {
     }
 
     const [books, total] = await Promise.all([
-      Book.find(query).skip(skip).limit(limit).sort(sortOptions),
+      Book.find(query)
+        .populate({
+          path: "createdBy",
+          select: "firstname lastname email",
+        })
+        .skip(skip)
+        .limit(limit)
+        .sort(sortOptions),
       Book.countDocuments(query),
     ]);
 
