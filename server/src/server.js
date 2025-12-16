@@ -1,6 +1,5 @@
 const express = require("express");
 const dotenv = require("dotenv");
-const mongoose = require("mongoose");
 
 // Load env vars
 dotenv.config();
@@ -11,7 +10,12 @@ const app = express();
 // Middleware
 app.use(express.json());
 
+// Routes
+const routes = require("./routes");
+app.use("/api", routes);
+
 // MonngoDB connection
+const mongoose = require("mongoose");
 const MONGODB_URI = process.env.MONGODB_URI;
 
 mongoose
