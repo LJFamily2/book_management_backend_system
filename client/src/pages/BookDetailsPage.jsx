@@ -1,19 +1,56 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const BookDetailsPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [book, setBook] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Mock data - in a real app, fetch this based on ID
-  const book = {
-    id: id,
-    title: "The Great Gatsby",
-    author: "F. Scott Fitzgerald",
-    publicationYear: 1925,
-    summary:
-      "The Great Gatsby is a 1925 novel by American writer F. Scott Fitzgerald. Set in the Jazz Age on Long Island, near New York City, the novel depicts first-person narrator Nick Carraway's interactions with mysterious millionaire Jay Gatsby and Gatsby's obsession to reunite with his former lover, Daisy Buchanan.",
-  };
+  useEffect(() => {
+    const fetchBook = async () => {
+      try {
+        const response = await axios.get(
+          `${import.meta.env.VITE_API_URL}/api/books/${id}`,
+          { withCredentials: true }
+        );
+        setBook(response.data.data);
+      } catch (err) {
+        console.error("Error fetching book details:", err);
+        setError("Failed to load book details.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (id) {
+      fetchBook();
+    }
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background-light dark:bg-background-dark">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (error || !book) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-background-light dark:bg-background-dark text-[#1c1c0d] dark:text-gray-100 gap-4">
+        <p className="text-xl font-bold">{error || "Book not found"}</p>
+        <button
+          onClick={() => navigate(-1)}
+          className="px-6 py-2 bg-primary text-black font-bold rounded-lg hover:bg-[#e6e205] transition-colors"
+        >
+          Go Back
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-background-light dark:bg-background-dark text-[#1c1c0d] dark:text-gray-100 min-h-screen flex flex-col font-display transition-colors duration-200 p-8">

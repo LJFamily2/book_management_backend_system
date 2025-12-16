@@ -1,7 +1,9 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const LoginPage = () => {
+  const navigate = useNavigate();
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
     firstname: "",
@@ -82,11 +84,41 @@ const LoginPage = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (validateForm()) {
-      console.log("Form submitted:", formData);
-      // TODO: Call backend API
+      try {
+        if (isLogin) {
+          const response = await axios.post(
+            `${import.meta.env.VITE_API_URL}/api/auth/login`,
+            {
+              email: formData.email,
+              password: formData.password,
+            },
+            { withCredentials: true }
+          );
+
+          localStorage.setItem("user", JSON.stringify(response.data.user));
+
+          if (response.data.user.role === "admin") {
+            navigate("/admin");
+          } else {
+            navigate("/student");
+          }
+        } else {
+          await axios.post(
+            `${import.meta.env.VITE_API_URL}/api/auth/register`,
+            {
+              ...formData,
+            }
+          );
+          setIsLogin(true);
+          alert("Registration successful! Please login.");
+        }
+      } catch (error) {
+        console.error(error);
+        alert(error.response?.data?.message || "An error occurred");
+      }
     }
   };
 

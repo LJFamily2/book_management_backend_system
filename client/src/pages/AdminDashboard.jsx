@@ -1,133 +1,23 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
+import axios from "axios";
 
 const AdminDashboard = () => {
-  const [books, setBooks] = useState([
-    {
-      id: 1,
-      title: "The Great Gatsby",
-      author: "F. Scott Fitzgerald",
-      publicationYear: 1925,
-      summary:
-        "The Great Gatsby is a 1925 novel by American writer F. Scott Fitzgerald.",
-    },
-    {
-      id: 2,
-      title: "To Kill a Mockingbird",
-      author: "Harper Lee",
-      publicationYear: 1960,
-      summary:
-        "To Kill a Mockingbird is a novel by the American author Harper Lee.",
-    },
-    {
-      id: 3,
-      title: "1984",
-      author: "George Orwell",
-      publicationYear: 1949,
-      summary:
-        "1984 is a dystopian social science fiction novel and cautionary tale by English writer George Orwell.",
-    },
-    {
-      id: 4,
-      title: "Pride and Prejudice",
-      author: "Jane Austen",
-      publicationYear: 1813,
-      summary:
-        "Pride and Prejudice is an 1813 romantic novel of manners written by Jane Austen.",
-    },
-    {
-      id: 5,
-      title: "The Catcher in the Rye",
-      author: "J.D. Salinger",
-      publicationYear: 1951,
-      summary:
-        "The Catcher in the Rye is a novel by J. D. Salinger, partially published in serial form in 1945–1946 and as a novel in 1951.",
-    },
-    {
-      id: 6,
-      title: "The Hobbit",
-      author: "J.R.R. Tolkien",
-      publicationYear: 1937,
-      summary:
-        "The Hobbit, or There and Back Again is a children's fantasy novel by English author J. R. R. Tolkien.",
-    },
-    {
-      id: 7,
-      title: "Fahrenheit 451",
-      author: "Ray Bradbury",
-      publicationYear: 1953,
-      summary:
-        "Fahrenheit 451 is a 1953 dystopian novel by American writer Ray Bradbury.",
-    },
-    {
-      id: 8,
-      title: "Jane Eyre",
-      author: "Charlotte Brontë",
-      publicationYear: 1847,
-      summary:
-        "Jane Eyre is a novel by English writer Charlotte Brontë, published under the pen name Currer Bell.",
-    },
-    {
-      id: 9,
-      title: "Animal Farm",
-      author: "George Orwell",
-      publicationYear: 1945,
-      summary:
-        "Animal Farm is a beast fable, in the form of a satirical allegorical novella, by George Orwell.",
-    },
-    {
-      id: 10,
-      title: "Wuthering Heights",
-      author: "Emily Brontë",
-      publicationYear: 1847,
-      summary:
-        "Wuthering Heights is an 1847 novel by Emily Brontë, initially published under the pseudonym Ellis Bell.",
-    },
-    {
-      id: 11,
-      title: "Brave New World",
-      author: "Aldous Huxley",
-      publicationYear: 1932,
-      summary:
-        "Brave New World is a dystopian novel by English author Aldous Huxley, written in 1931 and published in 1932.",
-    },
-    {
-      id: 12,
-      title: "The Lord of the Rings",
-      author: "J.R.R. Tolkien",
-      publicationYear: 1954,
-      summary:
-        "The Lord of the Rings is an epic high-fantasy novel by English author and scholar J. R. R. Tolkien.",
-    },
-    {
-      id: 13,
-      title: "Harry Potter and the Sorcerer's Stone",
-      author: "J.K. Rowling",
-      publicationYear: 1997,
-      summary:
-        "Harry Potter and the Philosopher's Stone is a fantasy novel written by British author J. K. Rowling.",
-    },
-    {
-      id: 14,
-      title: "The Alchemist",
-      author: "Paulo Coelho",
-      publicationYear: 1988,
-      summary:
-        "The Alchemist is a novel by Brazilian author Paulo Coelho that was first published in 1988.",
-    },
-    {
-      id: 15,
-      title: "The Da Vinci Code",
-      author: "Dan Brown",
-      publicationYear: 2003,
-      summary:
-        "The Da Vinci Code is a 2003 mystery thriller novel by Dan Brown.",
-    },
-  ]);
+  const [books, setBooks] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [totalBooks, setTotalBooks] = useState(0);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentBook, setCurrentBook] = useState(null); // For edit
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [bookToDelete, setBookToDelete] = useState(null);
+
+  // Form state
+  const [formData, setFormData] = useState({
+    title: "",
+    author: "",
+    publicationYear: "",
+    summary: "",
+  });
 
   // Search state
   const [searchQuery, setSearchQuery] = useState("");
@@ -136,6 +26,7 @@ const AdminDashboard = () => {
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
+  const [totalPages, setTotalPages] = useState(1);
 
   // Debounce search query
   useEffect(() => {
@@ -149,38 +40,109 @@ const AdminDashboard = () => {
     };
   }, [searchQuery]);
 
-  // Filter books based on search query
-  const filteredBooks = books.filter(
-    (book) =>
-      book.title.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
-      book.author.toLowerCase().includes(debouncedSearchQuery.toLowerCase())
-  );
+  // Fetch books from API
+  const fetchBooks = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get(
+        `${import.meta.env.VITE_API_URL}/api/books`,
+        {
+          withCredentials: true,
+          params: {
+            page: currentPage,
+            limit: itemsPerPage,
+            search: debouncedSearchQuery,
+          },
+        }
+      );
+      setBooks(response.data.data);
+      setTotalBooks(response.data.pagination.total);
+      setTotalPages(response.data.pagination.pages);
+    } catch (error) {
+      console.error("Error fetching books:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  // Pagination logic
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = filteredBooks.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(filteredBooks.length / itemsPerPage);
+  useEffect(() => {
+    fetchBooks();
+  }, [currentPage, debouncedSearchQuery]);
 
   const openDeleteModal = (id) => {
     setBookToDelete(id);
     setIsDeleteModalOpen(true);
   };
 
-  const confirmDelete = () => {
-    setBooks(books.filter((book) => book.id !== bookToDelete));
-    setIsDeleteModalOpen(false);
-    setBookToDelete(null);
+  const confirmDelete = async () => {
+    try {
+      await axios.delete(
+        `${import.meta.env.VITE_API_URL}/api/books/${bookToDelete}`,
+        {
+          withCredentials: true,
+        }
+      );
+      fetchBooks();
+      setIsDeleteModalOpen(false);
+      setBookToDelete(null);
+    } catch (error) {
+      console.error("Error deleting book:", error);
+      alert("Failed to delete book");
+    }
   };
 
   const openAddModal = () => {
     setCurrentBook(null);
+    setFormData({
+      title: "",
+      author: "",
+      publicationYear: "",
+      summary: "",
+    });
     setIsModalOpen(true);
   };
 
   const openEditModal = (book) => {
     setCurrentBook(book);
+    setFormData({
+      title: book.title,
+      author: book.author,
+      publicationYear: book.publicationYear,
+      summary: book.summary,
+    });
     setIsModalOpen(true);
+  };
+
+  const handleSave = async () => {
+    try {
+      if (currentBook) {
+        // Update
+        await axios.put(
+          `${import.meta.env.VITE_API_URL}/api/books/${currentBook._id}`, // Assuming _id from MongoDB
+          formData,
+          { withCredentials: true }
+        );
+      } else {
+        // Create
+        await axios.post(
+          `${import.meta.env.VITE_API_URL}/api/books`,
+          formData,
+          {
+            withCredentials: true,
+          }
+        );
+      }
+      fetchBooks();
+      setIsModalOpen(false);
+    } catch (error) {
+      console.error("Error saving book:", error);
+      alert("Failed to save book");
+    }
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   return (
@@ -300,43 +262,57 @@ const AdminDashboard = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                  {currentItems.map((book) => (
-                    <tr
-                      key={book.id}
-                      className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
-                    >
-                      <td className="px-6 py-4 font-medium text-slate-900 dark:text-white">
-                        {book.title}
-                      </td>
-                      <td className="px-6 py-4">{book.author}</td>
-                      <td className="px-6 py-4 font-mono text-xs">
-                        {book.publicationYear}
-                      </td>
-                      <td className="px-6 py-4 max-w-xs truncate">
-                        {book.summary}
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          <button
-                            onClick={() => openEditModal(book)}
-                            className="cursor-pointer p-2 text-slate-400 hover:text-primary hover:bg-primary/10 rounded-lg transition-colors"
-                          >
-                            <span className="material-symbols-outlined text-[20px]">
-                              edit
-                            </span>
-                          </button>
-                          <button
-                            onClick={() => openDeleteModal(book.id)}
-                            className="cursor-pointer p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
-                          >
-                            <span className="material-symbols-outlined text-[20px]">
-                              delete
-                            </span>
-                          </button>
-                        </div>
+                  {loading ? (
+                    <tr>
+                      <td colSpan="5" className="px-6 py-4 text-center">
+                        Loading...
                       </td>
                     </tr>
-                  ))}
+                  ) : books.length === 0 ? (
+                    <tr>
+                      <td colSpan="5" className="px-6 py-4 text-center">
+                        No books found.
+                      </td>
+                    </tr>
+                  ) : (
+                    books.map((book) => (
+                      <tr
+                        key={book._id}
+                        className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
+                      >
+                        <td className="px-6 py-4 font-medium text-slate-900 dark:text-white">
+                          {book.title}
+                        </td>
+                        <td className="px-6 py-4">{book.author}</td>
+                        <td className="px-6 py-4 font-mono text-xs">
+                          {book.publicationYear}
+                        </td>
+                        <td className="px-6 py-4 max-w-xs truncate">
+                          {book.summary}
+                        </td>
+                        <td className="px-6 py-4 text-right">
+                          <div className="flex items-center justify-end gap-2">
+                            <button
+                              onClick={() => openEditModal(book)}
+                              className="cursor-pointer p-2 text-slate-400 hover:text-primary hover:bg-primary/10 rounded-lg transition-colors"
+                            >
+                              <span className="material-symbols-outlined text-[20px]">
+                                edit
+                              </span>
+                            </button>
+                            <button
+                              onClick={() => openDeleteModal(book._id)}
+                              className="cursor-pointer p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                            >
+                              <span className="material-symbols-outlined text-[20px]">
+                                delete
+                              </span>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>
@@ -347,19 +323,19 @@ const AdminDashboard = () => {
             <div className="text-sm text-slate-500 dark:text-slate-400">
               Showing{" "}
               <span className="font-bold text-slate-900 dark:text-white">
-                {filteredBooks.length > 0 ? indexOfFirstItem + 1 : 0}-
-                {Math.min(indexOfLastItem, filteredBooks.length)}
+                {totalBooks > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0}-
+                {Math.min(currentPage * itemsPerPage, totalBooks)}
               </span>{" "}
               of{" "}
               <span className="font-bold text-slate-900 dark:text-white">
-                {filteredBooks.length}
+                {totalBooks}
               </span>{" "}
               results
             </div>
 
             <div className="flex items-center gap-2">
               <button
-                disabled={currentPage <= 1}
+                disabled={currentPage <= 1 || loading}
                 onClick={() => setCurrentPage((prev) => prev - 1)}
                 className="px-3 py-1.5 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors text-sm font-bold text-slate-700 dark:text-slate-300"
               >
@@ -369,7 +345,7 @@ const AdminDashboard = () => {
                 Page {currentPage} of {totalPages}
               </span>
               <button
-                disabled={currentPage >= totalPages}
+                disabled={currentPage >= totalPages || loading}
                 onClick={() => setCurrentPage((prev) => prev + 1)}
                 className="px-3 py-1.5 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors text-sm font-bold text-slate-700 dark:text-slate-300"
               >
@@ -396,15 +372,17 @@ const AdminDashboard = () => {
               </button>
             </div>
             <div className="p-6 space-y-4">
-              {/* Form fields would go here */}
+              {/* Form fields */}
               <div className="space-y-2">
                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
                   Book Title
                 </label>
                 <input
                   type="text"
+                  name="title"
+                  value={formData.title}
+                  onChange={handleInputChange}
                   className="w-full rounded-lg border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 p-2.5"
-                  defaultValue={currentBook?.title}
                 />
               </div>
               <div className="space-y-2">
@@ -413,8 +391,10 @@ const AdminDashboard = () => {
                 </label>
                 <input
                   type="text"
+                  name="author"
+                  value={formData.author}
+                  onChange={handleInputChange}
                   className="w-full rounded-lg border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 p-2.5"
-                  defaultValue={currentBook?.author}
                 />
               </div>
               <div className="space-y-2">
@@ -423,8 +403,10 @@ const AdminDashboard = () => {
                 </label>
                 <input
                   type="number"
+                  name="publicationYear"
+                  value={formData.publicationYear}
+                  onChange={handleInputChange}
                   className="w-full rounded-lg border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 p-2.5"
-                  defaultValue={currentBook?.publicationYear}
                 />
               </div>
               <div className="space-y-2">
@@ -432,9 +414,11 @@ const AdminDashboard = () => {
                   Summary
                 </label>
                 <textarea
+                  name="summary"
+                  value={formData.summary}
+                  onChange={handleInputChange}
                   className="w-full rounded-lg border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 p-2.5"
                   rows="3"
-                  defaultValue={currentBook?.summary}
                 ></textarea>
               </div>
             </div>
@@ -446,7 +430,7 @@ const AdminDashboard = () => {
                 Cancel
               </button>
               <button
-                onClick={() => setIsModalOpen(false)}
+                onClick={handleSave}
                 className="cursor-pointer px-4 py-2 text-sm font-bold text-black bg-primary hover:bg-primary-hover rounded-lg transition-colors"
               >
                 Save Book

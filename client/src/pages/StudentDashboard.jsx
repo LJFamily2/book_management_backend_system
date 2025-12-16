@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import axios from "axios";
 
 const StudentDashboard = () => {
   const navigate = useNavigate();
@@ -11,145 +12,74 @@ const StudentDashboard = () => {
   const limit = parseInt(searchParams.get("limit") || "10", 10);
   const sort = searchParams.get("sort") || "newest"; // 'newest' or 'oldest'
 
-  const books = [
-    {
-      id: 1,
-      title: "The Great Gatsby",
-      author: "F. Scott Fitzgerald",
-      publicationYear: 1925,
-      summary:
-        "The Great Gatsby is a 1925 novel by American writer F. Scott Fitzgerald. Set in the Jazz Age on Long Island, near New York City, the novel depicts first-person narrator Nick Carraway's interactions with mysterious millionaire Jay Gatsby and Gatsby's obsession to reunite with his former lover, Daisy Buchanan.",
-    },
-    {
-      id: 2,
-      title: "To Kill a Mockingbird",
-      author: "Harper Lee",
-      publicationYear: 1960,
-      summary:
-        "To Kill a Mockingbird is a novel by the American author Harper Lee. It was published in 1960 and was instantly successful. In the United States, it is widely read in high schools and middle schools. To Kill a Mockingbird has become a classic of modern American literature, winning the Pulitzer Prize.",
-    },
-    {
-      id: 3,
-      title: "1984",
-      author: "George Orwell",
-      publicationYear: 1949,
-      summary:
-        "1984 is a dystopian social science fiction novel and cautionary tale by English writer George Orwell. It was published on 8 June 1949 by Secker & Warburg as Orwell's ninth and final book completed in his lifetime.",
-    },
-    {
-      id: 4,
-      title: "Pride and Prejudice",
-      author: "Jane Austen",
-      publicationYear: 1813,
-      summary:
-        "Pride and Prejudice is an 1813 novel of manners by Jane Austen. The novel follows the character development of Elizabeth Bennet, the dynamic protagonist of the book who learns about the repercussions of hasty judgments and comes to appreciate the difference between superficial goodness and actual goodness.",
-    },
-    {
-      id: 5,
-      title: "The Catcher in the Rye",
-      author: "J.D. Salinger",
-      publicationYear: 1951,
-      summary:
-        "The Catcher in the Rye is a novel by J. D. Salinger, partially published in serial form in 1945–1946 and as a novel in 1951. It was originally intended for adults but is often read by adolescents for its themes of angst and alienation, and as a critique on superficiality in society.",
-    },
-    {
-      id: 6,
-      title: "The Hobbit",
-      author: "J.R.R. Tolkien",
-      publicationYear: 1937,
-      summary:
-        "The Hobbit, or There and Back Again is a children's fantasy novel by English author J. R. R. Tolkien. It was published on 21 September 1937 to wide critical acclaim, being nominated for the Carnegie Medal and awarded a prize from the New York Herald Tribune for best juvenile fiction.",
-    },
-    {
-      id: 7,
-      title: "Fahrenheit 451",
-      author: "Ray Bradbury",
-      publicationYear: 1953,
-      summary:
-        "Fahrenheit 451 is a 1953 dystopian novel by American writer Ray Bradbury. Often regarded as one of his best works, the novel presents a future American society where books are outlawed and 'firemen' burn any that are found.",
-    },
-    {
-      id: 8,
-      title: "Jane Eyre",
-      author: "Charlotte Brontë",
-      publicationYear: 1847,
-      summary:
-        "Jane Eyre is a novel by English writer Charlotte Brontë, published under the pen name Currer Bell, on 16 October 1847, by Smith, Elder & Co. of London. The first American edition was published the following year by Harper & Brothers of New York.",
-    },
-    {
-      id: 9,
-      title: "Animal Farm",
-      author: "George Orwell",
-      publicationYear: 1945,
-      summary:
-        "Animal Farm is a beast fable, in the form of a satirical allegorical novella, by George Orwell, first published in England on 17 August 1945. It tells the story of a group of farm animals who rebel against their human farmer, hoping to create a society where the animals can be equal, free, and happy.",
-    },
-    {
-      id: 10,
-      title: "Brave New World",
-      author: "Aldous Huxley",
-      publicationYear: 1932,
-      summary:
-        "Brave New World is a dystopian novel by English author Aldous Huxley, written in 1931 and published in 1932. Largely set in a futuristic World State, whose citizens are environmentally engineered into an intelligence-based social hierarchy, the novel anticipates huge scientific advancements in reproductive technology.",
-    },
-    {
-      id: 11,
-      title: "The Lord of the Rings",
-      author: "J.R.R. Tolkien",
-      publicationYear: 1954,
-      summary:
-        "The Lord of the Rings is an epic high-fantasy novel by English author and scholar J. R. R. Tolkien. Set in Middle-earth, intended to be a sequel to his 1937 children's book The Hobbit, but eventually developed into a much larger work.",
-    },
-    {
-      id: 12,
-      title: "Harry Potter and the Sorcerer's Stone",
-      author: "J.K. Rowling",
-      publicationYear: 1997,
-      summary:
-        "Harry Potter and the Philosopher's Stone is a fantasy novel written by British author J. K. Rowling. The first novel in the Harry Potter series and Rowling's debut novel, it follows Harry Potter, a young wizard who discovers his magical heritage on his eleventh birthday.",
-    },
-    {
-      id: 13,
-      title: "The Alchemist",
-      author: "Paulo Coelho",
-      publicationYear: 1988,
-      summary:
-        "The Alchemist is a novel by Brazilian author Paulo Coelho that was first published in 1988. Originally written in Portuguese, it became a widely translated international bestseller.",
-    },
-    {
-      id: 14,
-      title: "The Da Vinci Code",
-      author: "Dan Brown",
-      publicationYear: 2003,
-      summary:
-        "The Da Vinci Code is a 2003 mystery thriller novel by Dan Brown. It is Brown's second novel to include the character Robert Langdon: the first was his 2000 novel Angels & Demons.",
-    },
-    {
-      id: 15,
-      title: "The Hunger Games",
-      author: "Suzanne Collins",
-      publicationYear: 2008,
-      summary:
-        "The Hunger Games is a 2008 dystopian novel by the American writer Suzanne Collins. It is written in the voice of 16-year-old Katniss Everdeen, who lives in the future, post-apocalyptic nation of Panem in North America.",
-    },
-  ];
+  // Data state
+  const [books, setBooks] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [totalBooks, setTotalBooks] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+  const search = searchParams.get("search") || "";
 
-  // Sort books based on publication year
-  const sortedBooks = [...books].sort((a, b) => {
-    if (sort === "newest") {
-      return b.publicationYear - a.publicationYear;
-    } else {
-      return a.publicationYear - b.publicationYear;
-    }
-  });
+  // Fetch books
+  useEffect(() => {
+    const fetchBooks = async () => {
+      setLoading(true);
+      try {
+        const response = await axios.get(
+          `${import.meta.env.VITE_API_URL}/api/books`,
+          {
+            withCredentials: true,
+            params: {
+              page,
+              limit,
+              sort,
+              search,
+            },
+          }
+        );
+        setBooks(response.data.data);
+        setTotalBooks(response.data.pagination.total);
+        setTotalPages(response.data.pagination.pages);
+      } catch (error) {
+        console.error("Error fetching books:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const totalPages = Math.ceil(sortedBooks.length / limit);
-  const startIndex = (page - 1) * limit;
-  const displayedBooks = sortedBooks.slice(startIndex, startIndex + limit);
+    fetchBooks();
+  }, [page, limit, sort, search]);
 
+  // Handlers
   const handleSortChange = (newSort) => {
-    setSearchParams({ page: 1, limit, sort: newSort });
+    setSearchParams({ page: "1", limit, sort: newSort, search });
     setIsFilterOpen(false);
+  };
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const query = formData.get("search");
+    setSearchParams({ page: "1", limit, sort, search: query });
+  };
+
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setSearchParams({ page: newPage.toString(), limit, sort, search });
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/auth/logout`,
+        {},
+        { withCredentials: true }
+      );
+      navigate("/");
+    } catch (error) {
+      console.error("Logout failed", error);
+      navigate("/");
+    }
   };
 
   return (
@@ -189,10 +119,7 @@ const StudentDashboard = () => {
                     </p>
                   </div>
                   <button
-                    onClick={() => {
-                      // Handle logout logic here
-                      navigate("/");
-                    }}
+                    onClick={handleLogout}
                     className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors flex items-center gap-2"
                   >
                     <span className="material-symbols-outlined text-[18px]">
@@ -227,7 +154,7 @@ const StudentDashboard = () => {
         {/* Search and Filters Section */}
         <section className="flex flex-col gap-6">
           {/* Search Bar */}
-          <div className="w-full relative group">
+          <form onSubmit={handleSearch} className="w-full relative group">
             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
               <span className="material-symbols-outlined text-gray-400 group-focus-within:text-primary transition-colors">
                 search
@@ -235,15 +162,20 @@ const StudentDashboard = () => {
             </div>
             <input
               type="text"
+              name="search"
+              defaultValue={search}
               className="block w-full pl-12 pr-4 py-4 rounded-xl border-none bg-white dark:bg-white/5 text-[#1c1c0d] dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-primary focus:bg-white dark:focus:bg-black/20 shadow-soft transition-all text-base font-medium"
               placeholder="Search by title, author, or ISBN..."
             />
             <div className="absolute inset-y-0 right-2 flex items-center">
-              <button className="cursor-pointer bg-primary hover:bg-[#e6e205] text-black font-bold py-2 px-4 rounded-lg text-sm transition-colors shadow-sm">
+              <button
+                type="submit"
+                className="cursor-pointer bg-primary hover:bg-[#e6e205] text-black font-bold py-2 px-4 rounded-lg text-sm transition-colors shadow-sm"
+              >
                 Search
               </button>
             </div>
-          </div>
+          </form>
 
           {/* Filter Chips */}
           <div className="flex flex-wrap gap-3 items-center">
@@ -299,48 +231,60 @@ const StudentDashboard = () => {
         </section>
 
         {/* Books Grid */}
-        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 pb-12">
-          {displayedBooks.map((book) => (
-            <article
-              key={book.id}
-              className="group relative flex flex-col bg-white dark:bg-[#23220f] rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden border border-gray-100 dark:border-white/5"
-            >
-              <div className="flex flex-col flex-1 p-5">
-                <div className="flex items-start justify-between gap-2 mb-2">
-                  <h3 className="text-lg font-bold text-[#1c1c0d] dark:text-white leading-tight line-clamp-1 group-hover:text-primary-dark transition-colors">
-                    {book.title}
-                  </h3>
-                  <span className="shrink-0 text-xs font-bold bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-gray-300 px-2 py-1 rounded">
-                    {book.publicationYear}
-                  </span>
-                </div>
-                <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3">
-                  {book.author}
-                </p>
-                <p className="text-sm text-gray-600 dark:text-gray-300 mb-4 line-clamp-3 leading-relaxed">
-                  {book.summary}
-                </p>
-                <div className="mt-auto pt-3 border-t border-gray-100 dark:border-white/10 flex gap-3">
-                  <Link
-                    to={`/student/book/${book.id}`}
-                    className="cursor-pointer flex-1 bg-primary hover:bg-[#e6e205] text-black text-sm font-bold py-2.5 rounded-lg transition-colors shadow-sm flex items-center justify-center gap-2"
-                  >
-                    <span className="material-symbols-outlined text-[20px]">
-                      visibility
-                    </span>
-                    View Details
-                  </Link>
-                </div>
+        {loading ? (
+          <div className="flex justify-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+          </div>
+        ) : (
+          <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 pb-12">
+            {books.length > 0 ? (
+              books.map((book) => (
+                <article
+                  key={book._id}
+                  className="group relative flex flex-col bg-white dark:bg-[#23220f] rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden border border-gray-100 dark:border-white/5"
+                >
+                  <div className="flex flex-col flex-1 p-5">
+                    <div className="flex items-start justify-between gap-2 mb-2">
+                      <h3 className="text-lg font-bold text-[#1c1c0d] dark:text-white leading-tight line-clamp-1 group-hover:text-primary-dark transition-colors">
+                        {book.title}
+                      </h3>
+                      <span className="shrink-0 text-xs font-bold bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-gray-300 px-2 py-1 rounded">
+                        {book.publicationYear}
+                      </span>
+                    </div>
+                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3">
+                      {book.author}
+                    </p>
+                    <p className="text-sm text-gray-600 dark:text-gray-300 mb-4 line-clamp-3 leading-relaxed">
+                      {book.summary}
+                    </p>
+                    <div className="mt-auto pt-3 border-t border-gray-100 dark:border-white/10 flex gap-3">
+                      <Link
+                        to={`/student/book/${book._id}`}
+                        className="cursor-pointer flex-1 bg-primary hover:bg-[#e6e205] text-black text-sm font-bold py-2.5 rounded-lg transition-colors shadow-sm flex items-center justify-center gap-2"
+                      >
+                        <span className="material-symbols-outlined text-[20px]">
+                          visibility
+                        </span>
+                        View Details
+                      </Link>
+                    </div>
+                  </div>
+                </article>
+              ))
+            ) : (
+              <div className="col-span-full text-center py-12 text-gray-500">
+                No books found.
               </div>
-            </article>
-          ))}
-        </section>
+            )}
+          </section>
+        )}
 
         {/* Pagination Controls */}
         <div className="flex justify-center items-center gap-4 pb-12">
           <button
             disabled={page <= 1}
-            onClick={() => navigate(`/student?page=${page - 1}&limit=${limit}`)}
+            onClick={() => handlePageChange(page - 1)}
             className="px-4 py-2 rounded-lg bg-white dark:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100 dark:hover:bg-white/20 transition-colors text-sm font-bold"
           >
             Previous
@@ -350,7 +294,7 @@ const StudentDashboard = () => {
           </span>
           <button
             disabled={page >= totalPages}
-            onClick={() => navigate(`/student?page=${page + 1}&limit=${limit}`)}
+            onClick={() => handlePageChange(page + 1)}
             className="px-4 py-2 rounded-lg bg-white dark:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100 dark:hover:bg-white/20 transition-colors text-sm font-bold"
           >
             Next
