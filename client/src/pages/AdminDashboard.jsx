@@ -133,6 +133,10 @@ const AdminDashboard = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
+
   // Debounce search query
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -144,10 +148,6 @@ const AdminDashboard = () => {
       clearTimeout(handler);
     };
   }, [searchQuery]);
-
-  // Pagination state
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
 
   // Filter books based on search query
   const filteredBooks = books.filter(
