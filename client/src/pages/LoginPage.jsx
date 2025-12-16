@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import toast from "react-hot-toast";
@@ -16,6 +16,27 @@ const LoginPage = () => {
     password: "",
   });
   const [errors, setErrors] = useState({});
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const response = await axios.get(
+          `${import.meta.env.VITE_API_URL}/api/auth/me`,
+          { withCredentials: true }
+        );
+        if (response.data) {
+          if (response.data.role === "ADMIN") {
+            navigate("/admin");
+          } else {
+            navigate("/student");
+          }
+        }
+      } catch {
+        // Not authenticated, stay on login page
+      }
+    };
+    checkAuth();
+  }, [navigate]);
 
   const toggleMode = () => {
     setIsLogin(!isLogin);
