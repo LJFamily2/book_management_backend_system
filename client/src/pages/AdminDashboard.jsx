@@ -6,25 +6,25 @@ const AdminDashboard = () => {
       id: 1,
       title: "The Great Gatsby",
       author: "F. Scott Fitzgerald",
-      isbn: "978-0743273565",
-      status: "Available",
-      copies: 5,
+      publicationYear: 1925,
+      summary:
+        "The Great Gatsby is a 1925 novel by American writer F. Scott Fitzgerald.",
     },
     {
       id: 2,
       title: "To Kill a Mockingbird",
       author: "Harper Lee",
-      isbn: "978-0446310789",
-      status: "Borrowed",
-      copies: 2,
+      publicationYear: 1960,
+      summary:
+        "To Kill a Mockingbird is a novel by the American author Harper Lee.",
     },
     {
       id: 3,
       title: "1984",
       author: "George Orwell",
-      isbn: "978-0451524935",
-      status: "Available",
-      copies: 8,
+      publicationYear: 1949,
+      summary:
+        "1984 is a dystopian social science fiction novel and cautionary tale by English writer George Orwell.",
     },
   ]);
 
@@ -187,7 +187,7 @@ const AdminDashboard = () => {
           </div>
 
           {/* Stats Row */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-100 dark:border-slate-800 shadow-sm flex flex-col gap-1">
               <div className="flex justify-between items-center">
                 <span className="text-slate-500 dark:text-slate-400 text-sm font-medium">
@@ -228,46 +228,6 @@ const AdminDashboard = () => {
                 </span>
               </div>
             </div>
-            <div className="bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-100 dark:border-slate-800 shadow-sm flex flex-col gap-1">
-              <div className="flex justify-between items-center">
-                <span className="text-slate-500 dark:text-slate-400 text-sm font-medium">
-                  Checked Out
-                </span>
-                <div className="size-8 rounded-full bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-400">
-                  <span className="material-symbols-outlined text-[18px]">
-                    outbox
-                  </span>
-                </div>
-              </div>
-              <div className="flex items-baseline gap-2 mt-2">
-                <span className="text-2xl font-bold text-slate-900 dark:text-white">
-                  85
-                </span>
-                <span className="text-xs font-bold text-red-600 bg-red-50 dark:bg-red-900/20 px-1.5 py-0.5 rounded">
-                  -2%
-                </span>
-              </div>
-            </div>
-            <div className="bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-100 dark:border-slate-800 shadow-sm flex flex-col gap-1">
-              <div className="flex justify-between items-center">
-                <span className="text-slate-500 dark:text-slate-400 text-sm font-medium">
-                  Overdue
-                </span>
-                <div className="size-8 rounded-full bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-400">
-                  <span className="material-symbols-outlined text-[18px]">
-                    warning
-                  </span>
-                </div>
-              </div>
-              <div className="flex items-baseline gap-2 mt-2">
-                <span className="text-2xl font-bold text-slate-900 dark:text-white">
-                  12
-                </span>
-                <span className="text-xs font-bold text-red-600 bg-red-50 dark:bg-red-900/20 px-1.5 py-0.5 rounded">
-                  +4%
-                </span>
-              </div>
-            </div>
           </div>
 
           {/* Book List Table */}
@@ -278,9 +238,8 @@ const AdminDashboard = () => {
                   <tr>
                     <th className="px-6 py-4">Book Title</th>
                     <th className="px-6 py-4">Author</th>
-                    <th className="px-6 py-4">ISBN</th>
-                    <th className="px-6 py-4">Status</th>
-                    <th className="px-6 py-4">Copies</th>
+                    <th className="px-6 py-4">Year</th>
+                    <th className="px-6 py-4">Summary</th>
                     <th className="px-6 py-4 text-right">Actions</th>
                   </tr>
                 </thead>
@@ -295,20 +254,11 @@ const AdminDashboard = () => {
                       </td>
                       <td className="px-6 py-4">{book.author}</td>
                       <td className="px-6 py-4 font-mono text-xs">
-                        {book.isbn}
+                        {book.publicationYear}
                       </td>
-                      <td className="px-6 py-4">
-                        <span
-                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                            book.status === "Available"
-                              ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
-                              : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400"
-                          }`}
-                        >
-                          {book.status}
-                        </span>
+                      <td className="px-6 py-4 max-w-xs truncate">
+                        {book.summary}
                       </td>
-                      <td className="px-6 py-4">{book.copies}</td>
                       <td className="px-6 py-4 text-right">
                         <div className="flex items-center justify-end gap-2">
                           <button
@@ -377,37 +327,23 @@ const AdminDashboard = () => {
               </div>
               <div className="space-y-2">
                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
-                  ISBN
+                  Publication Year
                 </label>
                 <input
-                  type="text"
+                  type="number"
                   className="w-full rounded-lg border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 p-2.5"
-                  defaultValue={currentBook?.isbn}
+                  defaultValue={currentBook?.publicationYear}
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
-                    Status
-                  </label>
-                  <select
-                    className="w-full rounded-lg border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 p-2.5"
-                    defaultValue={currentBook?.status || "Available"}
-                  >
-                    <option>Available</option>
-                    <option>Borrowed</option>
-                  </select>
-                </div>
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
-                    Copies
-                  </label>
-                  <input
-                    type="number"
-                    className="w-full rounded-lg border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 p-2.5"
-                    defaultValue={currentBook?.copies || 1}
-                  />
-                </div>
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+                  Summary
+                </label>
+                <textarea
+                  className="w-full rounded-lg border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 p-2.5"
+                  rows="3"
+                  defaultValue={currentBook?.summary}
+                ></textarea>
               </div>
             </div>
             <div className="px-6 py-4 bg-slate-50 dark:bg-slate-800/50 flex justify-end gap-3">
