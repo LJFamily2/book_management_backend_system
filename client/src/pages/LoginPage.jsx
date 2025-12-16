@@ -56,13 +56,8 @@ const LoginPage = () => {
                   Full Name
                 </label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-[#9e9d47]">
-                    <span className="material-symbols-outlined text-[20px]">
-                      person
-                    </span>
-                  </div>
                   <input
-                    className="form-input block w-full pl-11 pr-4 py-3.5 rounded-full bg-white/70 dark:bg-black/20 border-0 ring-1 ring-inset ring-[#e5e5dc] dark:ring-white/20 placeholder:text-[#9e9d47] focus:ring-2 focus:ring-inset focus:ring-primary focus:bg-white dark:focus:bg-black/40 sm:text-sm sm:leading-6 text-[#1c1c0d] dark:text-white transition-all duration-200"
+                    className="form-input block w-full px-4 py-3.5 rounded-full bg-white/70 dark:bg-black/20 border-0 ring-1 ring-inset ring-[#e5e5dc] dark:ring-white/20 placeholder:text-[#9e9d47] focus:ring-2 focus:ring-inset focus:ring-primary focus:bg-white dark:focus:bg-black/40 sm:text-sm sm:leading-6 text-[#1c1c0d] dark:text-white transition-all duration-200"
                     id="name"
                     name="name"
                     placeholder="John Doe"
@@ -80,13 +75,8 @@ const LoginPage = () => {
                 Email Address
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-[#9e9d47]">
-                  <span className="material-symbols-outlined text-[20px]">
-                    mail
-                  </span>
-                </div>
                 <input
-                  className="form-input block w-full pl-11 pr-4 py-3.5 rounded-full bg-white/70 dark:bg-black/20 border-0 ring-1 ring-inset ring-[#e5e5dc] dark:ring-white/20 placeholder:text-[#9e9d47] focus:ring-2 focus:ring-inset focus:ring-primary focus:bg-white dark:focus:bg-black/40 sm:text-sm sm:leading-6 text-[#1c1c0d] dark:text-white transition-all duration-200"
+                  className="form-input block w-full px-4 py-3.5 rounded-full bg-white/70 dark:bg-black/20 border-0 ring-1 ring-inset ring-[#e5e5dc] dark:ring-white/20 placeholder:text-[#9e9d47] focus:ring-2 focus:ring-inset focus:ring-primary focus:bg-white dark:focus:bg-black/40 sm:text-sm sm:leading-6 text-[#1c1c0d] dark:text-white transition-all duration-200"
                   id="email"
                   name="email"
                   placeholder="name@library.com"
@@ -103,37 +93,24 @@ const LoginPage = () => {
                 >
                   Password
                 </label>
-                {isLogin && (
-                  <a
-                    className="text-xs font-semibold text-[#1c1c0d]/70 dark:text-white/70 hover:text-primary transition-colors"
-                    href="#"
-                  >
-                    Forgot Password?
-                  </a>
-                )}
               </div>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-[#9e9d47]">
-                  <span className="material-symbols-outlined text-[20px]">
-                    lock
-                  </span>
-                </div>
                 <input
-                  className="form-input block w-full pl-11 pr-12 py-3.5 rounded-full bg-white/70 dark:bg-black/20 border-0 ring-1 ring-inset ring-[#e5e5dc] dark:ring-white/20 placeholder:text-[#9e9d47] focus:ring-2 focus:ring-inset focus:ring-primary focus:bg-white dark:focus:bg-black/40 sm:text-sm sm:leading-6 text-[#1c1c0d] dark:text-white transition-all duration-200"
+                  className="form-input block w-full px-4 py-3.5 rounded-full bg-white/70 dark:bg-black/20 border-0 ring-1 ring-inset ring-[#e5e5dc] dark:ring-white/20 placeholder:text-[#9e9d47] focus:ring-2 focus:ring-inset focus:ring-primary focus:bg-white dark:focus:bg-black/40 sm:text-sm sm:leading-6 text-[#1c1c0d] dark:text-white transition-all duration-200"
                   id="password"
                   name="password"
                   placeholder="••••••••"
                   type="password"
                 />
-                <button
-                  className="absolute inset-y-0 right-0 pr-4 flex items-center cursor-pointer text-[#9e9d47] hover:text-[#1c1c0d] dark:hover:text-white transition-colors"
-                  type="button"
-                >
-                  <span className="material-symbols-outlined text-[20px]">
-                    visibility
-                  </span>
-                </button>
               </div>
+              {isLogin && (
+                <a
+                  className="text-xs font-semibold text-[#1c1c0d]/70 dark:text-white/70 hover:underline transition-colors"
+                  href="#"
+                >
+                  Forgot Password?
+                </a>
+              )}
             </div>
 
             <button
@@ -150,7 +127,7 @@ const LoginPage = () => {
               {isLogin ? "Don't have an account?" : "Already have an account?"}
               <button
                 onClick={toggleMode}
-                className="font-bold text-[#1c1c0d] dark:text-white hover:text-primary transition-colors ml-1 underline decoration-primary/50 decoration-2 underline-offset-4 hover:decoration-primary"
+                className="cursor-pointer font-bold text-[#1c1c0d] dark:text-white hover:underline transition-colors ml-1 "
               >
                 {isLogin ? "Sign up" : "Sign in"}
               </button>

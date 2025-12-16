@@ -75,7 +75,7 @@ const StudentDashboard = () => {
             </a>
           </nav>
           <div className="flex items-center gap-4">
-            <button className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors">
+            <button className="cursor-pointer p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors">
               <span className="material-symbols-outlined text-gray-600 dark:text-gray-300">
                 notifications
               </span>
@@ -107,7 +107,7 @@ const StudentDashboard = () => {
             </p>
           </div>
           <div className="hidden md:block">
-            <button className="bg-black text-white dark:bg-white dark:text-black px-6 py-3 rounded-xl font-bold text-sm hover:opacity-90 transition-opacity flex items-center gap-2 shadow-lg">
+            <button className="cursor-pointer bg-black text-white dark:bg-white dark:text-black px-6 py-3 rounded-xl font-bold text-sm hover:opacity-90 transition-opacity flex items-center gap-2 shadow-lg">
               <span className="material-symbols-outlined text-[20px]">
                 bookmark
               </span>
@@ -131,7 +131,7 @@ const StudentDashboard = () => {
               placeholder="Search by title, author, or ISBN..."
             />
             <div className="absolute inset-y-0 right-2 flex items-center">
-              <button className="bg-primary hover:bg-[#e6e205] text-black font-bold py-2 px-4 rounded-lg text-sm transition-colors shadow-sm">
+              <button className="cursor-pointer bg-primary hover:bg-[#e6e205] text-black font-bold py-2 px-4 rounded-lg text-sm transition-colors shadow-sm">
                 Search
               </button>
             </div>
@@ -142,22 +142,22 @@ const StudentDashboard = () => {
             <span className="text-sm font-semibold text-gray-500 dark:text-gray-400 mr-2">
               Browse:
             </span>
-            <button className="px-5 py-2 rounded-full bg-primary text-black text-sm font-bold shadow-sm ring-2 ring-primary ring-offset-2 ring-offset-[#f8f8f5] dark:ring-offset-[#23220f]">
+            <button className="cursor-pointer px-5 py-2 rounded-full bg-primary text-black text-sm font-bold shadow-sm ring-2 ring-primary ring-offset-2 ring-offset-[#f8f8f5] dark:ring-offset-[#23220f]">
               All Books
             </button>
-            <button className="px-5 py-2 rounded-full bg-white dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 text-gray-700 dark:text-gray-300 text-sm font-medium border border-transparent hover:border-gray-200 dark:hover:border-white/10 transition-all shadow-sm">
+            <button className="cursor-pointer px-5 py-2 rounded-full bg-white dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 text-gray-700 dark:text-gray-300 text-sm font-medium border border-transparent hover:border-gray-200 dark:hover:border-white/10 transition-all shadow-sm">
               Popular
             </button>
-            <button className="px-5 py-2 rounded-full bg-white dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 text-gray-700 dark:text-gray-300 text-sm font-medium border border-transparent hover:border-gray-200 dark:hover:border-white/10 transition-all shadow-sm">
+            <button className="cursor-pointer px-5 py-2 rounded-full bg-white dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 text-gray-700 dark:text-gray-300 text-sm font-medium border border-transparent hover:border-gray-200 dark:hover:border-white/10 transition-all shadow-sm">
               New Arrivals
             </button>
-            <button className="px-5 py-2 rounded-full bg-white dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 text-gray-700 dark:text-gray-300 text-sm font-medium border border-transparent hover:border-gray-200 dark:hover:border-white/10 transition-all shadow-sm">
+            <button className="cursor-pointer px-5 py-2 rounded-full bg-white dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 text-gray-700 dark:text-gray-300 text-sm font-medium border border-transparent hover:border-gray-200 dark:hover:border-white/10 transition-all shadow-sm">
               Fiction
             </button>
-            <button className="px-5 py-2 rounded-full bg-white dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 text-gray-700 dark:text-gray-300 text-sm font-medium border border-transparent hover:border-gray-200 dark:hover:border-white/10 transition-all shadow-sm">
+            <button className="cursor-pointer px-5 py-2 rounded-full bg-white dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 text-gray-700 dark:text-gray-300 text-sm font-medium border border-transparent hover:border-gray-200 dark:hover:border-white/10 transition-all shadow-sm">
               Science
             </button>
-            <button className="ml-auto flex items-center gap-1 text-sm font-medium text-gray-500 hover:text-black dark:text-gray-400 dark:hover:text-white transition-colors">
+            <button className="cursor-pointer ml-auto flex items-center gap-1 text-sm font-medium text-gray-500 hover:text-black dark:text-gray-400 dark:hover:text-white transition-colors">
               <span className="material-symbols-outlined text-[18px]">
                 tune
               </span>
@@ -180,7 +180,7 @@ const StudentDashboard = () => {
                   className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
                 <div className="absolute top-3 right-3">
-                  <button className="p-2 bg-white/90 dark:bg-black/60 backdrop-blur-sm rounded-full text-gray-400 hover:text-red-500 transition-colors shadow-sm">
+                  <button className="cursor-pointer p-2 bg-white/90 dark:bg-black/60 backdrop-blur-sm rounded-full text-gray-400 hover:text-red-500 transition-colors shadow-sm">
                     <span className="material-symbols-outlined block text-[20px]">
                       favorite
                     </span>
@@ -210,10 +210,10 @@ const StudentDashboard = () => {
                   {book.description}
                 </p>
                 <div className="mt-auto pt-3 border-t border-gray-100 dark:border-white/10 flex gap-3">
-                  <button className="flex-1 bg-primary hover:bg-[#e6e205] text-black text-sm font-bold py-2.5 rounded-lg transition-colors shadow-sm">
+                  <button className="cursor-pointer flex-1 bg-primary hover:bg-[#e6e205] text-black text-sm font-bold py-2.5 rounded-lg transition-colors shadow-sm">
                     Borrow Now
                   </button>
-                  <button className="px-3 py-2.5 bg-gray-100 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/20 text-[#1c1c0d] dark:text-white rounded-lg transition-colors">
+                  <button className="cursor-pointer px-3 py-2.5 bg-gray-100 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/20 text-[#1c1c0d] dark:text-white rounded-lg transition-colors">
                     <span className="material-symbols-outlined text-[20px]">
                       visibility
                     </span>
