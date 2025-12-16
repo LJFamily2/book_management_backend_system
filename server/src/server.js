@@ -23,6 +23,17 @@ app.use(
 const routes = require("./routes");
 app.use("/api", routes);
 
+// 404 Handler
+app.use((req, res, next) => {
+  res.status(404).json({ message: "Route not found" });
+});
+
+// Global Error Handler
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ message: "Internal Server Error" });
+});
+
 // MonngoDB connection
 const mongoose = require("mongoose");
 const MONGODB_URI = process.env.MONGODB_URI;

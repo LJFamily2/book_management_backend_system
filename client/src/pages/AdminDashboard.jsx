@@ -80,6 +80,7 @@ const AdminDashboard = () => {
       setTotalPages(response.data.pagination.pages);
     } catch (error) {
       console.error("Error fetching books:", error);
+      toast.error("Failed to load books");
     } finally {
       setLoading(false);
     }
